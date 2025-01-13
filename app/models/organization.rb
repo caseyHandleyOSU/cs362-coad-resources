@@ -1,3 +1,11 @@
+# CH 1-13-25
+# Defines an Organization, which has:
+# :name is the organization's name
+# :primary_name is the organization's applicant name
+# :phone corresponds to the primary name
+# :secondary_name is the organization's secondary contact
+# :secondary_phone is the organization's secondary contact phone #
+
 class Organization < ApplicationRecord
 
   attr_accessor :agreement_one, :agreement_two, :agreement_three, :agreement_four, :agreement_five, :agreement_six, :agreement_seven, :agreement_eight

@@ -1,3 +1,6 @@
+# CH 1-13-25
+# Represents a category of resources, the tickets under the category, and the organizations that serve this category.
+
 class ResourceCategory < ApplicationRecord
 
   has_and_belongs_to_many :organizations

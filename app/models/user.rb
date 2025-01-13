@@ -1,3 +1,7 @@
+# CH 1-13-25
+# Corresponds to a user
+# Users can optionally belong to an organization, or be an admin.
+
 class User < ApplicationRecord
 
   enum role: [:admin, :organization]
