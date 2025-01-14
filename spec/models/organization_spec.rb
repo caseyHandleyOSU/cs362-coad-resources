@@ -52,4 +52,36 @@ RSpec.describe Organization, type: :model do
     expect(org).to respond_to(:transportation)
   end
 
+  it "has agreement one" do
+    expect(org).to respond_to(:agreement_one)
+  end
+
+  it "has agreement two" do
+    expect(org).to respond_to(:agreement_two)
+  end
+
+  it "has agreement three" do
+    expect(org).to respond_to(:agreement_three)
+  end
+
+  it "has agreement four" do
+    expect(org).to respond_to(:agreement_four)
+  end
+
+  it "has agreement five" do
+    expect(org).to respond_to(:agreement_five)
+  end
+
+  it "has agreement six" do
+    expect(org).to respond_to(:agreement_six)
+  end
+
+  it "has agreement seven" do
+    expect(org).to respond_to(:agreement_seven)
+  end
+
+  it "has agreement eight" do
+    expect(org).to respond_to(:agreement_eight)
+  end
+
 end
