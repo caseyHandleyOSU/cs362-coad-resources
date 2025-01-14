@@ -84,4 +84,16 @@ RSpec.describe Organization, type: :model do
     expect(org).to respond_to(:agreement_eight)
   end
 
+  it "has many users" do
+    should have_many(:users)
+  end
+
+  it "has many tickets" do
+    should have_many(:tickets)
+  end
+
+  it "has and belongs to many resource categories" do
+    should have_and_belong_to_many(:resource_categories)
+  end
+
 end
