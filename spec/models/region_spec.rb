@@ -25,8 +25,7 @@ RSpec.describe Region, type: :model do
   describe 'associations' do
     
     it 'has many tickets' do
-      association = Region.reflect_on_association(:tickets)
-      expect(association.macro).to eq(:has_many)
+      expect(Region.reflect_on_association(:tickets).macro).to eq(:has_many)
     end
   end
 end

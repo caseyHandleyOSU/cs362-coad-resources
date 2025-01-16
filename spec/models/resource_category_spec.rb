@@ -62,4 +62,15 @@ RSpec.describe ResourceCategory, type: :model do
             end
         end
     end
+
+    describe "associations" do
+
+        it "has_and_belongs_to_many organizations" do
+            expect(ResourceCategory.reflect_on_association(:organizations).macro).to eq(:has_and_belongs_to_many)
+        end
+
+        it "has_many tickets" do
+            expect(ResourceCategory.reflect_on_association(:tickets).macro).to eq(:has_many)
+        end
+    end
 end

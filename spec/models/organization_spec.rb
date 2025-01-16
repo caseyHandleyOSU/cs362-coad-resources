@@ -89,6 +89,21 @@ RSpec.describe Organization, type: :model do
         end
     end
 
+    describe 'associations' do
+
+        it "has many users" do
+            expect(Organization.reflect_on_association(:users).macro).to eq(:has_many)
+        end
+
+        it "has_many tickets" do
+            expect(Organization.reflect_on_association(:tickets).macro).to eq(:has_many)
+        end
+
+        it "has_and_belongs_to_many resource categories" do
+            expect(Organization.reflect_on_association(:resource_categories).macro).to eq(:has_and_belongs_to_many)
+        end
+    end
+
     describe 'methods' do
 
         it "sets status to :approved" do
@@ -115,21 +130,6 @@ RSpec.describe Organization, type: :model do
         it "returns the name of the organization" do 
             org.name = "Test Org"
             expect(org.to_s).to eq("Test Org")
-        end
-    end
-
-    describe 'associations' do
-
-        it "has many users" do
-            expect(Organization.reflect_on_association(:users).macro).to eq(:has_many)
-        end
-
-        it "has_many tickets" do
-            expect(Organization.reflect_on_association(:tickets).macro).to eq(:has_many)
-        end
-
-        it "has_and_belongs_to_many resource categories" do
-            expect(Organization.reflect_on_association(:resource_categories).macro).to eq(:has_and_belongs_to_many)
         end
     end
 end
