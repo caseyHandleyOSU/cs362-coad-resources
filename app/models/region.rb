@@ -15,3 +15,4 @@ class Region < ApplicationRecord
   end
 
 end
+ 

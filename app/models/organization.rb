@@ -37,3 +37,4 @@ class Organization < ApplicationRecord
   end
 
 end
+ 

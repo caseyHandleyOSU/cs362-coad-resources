@@ -2,19 +2,31 @@ require 'rails_helper'
 
 RSpec.describe Region, type: :model do
 
-  it "exists" do
-    Region.new
+  let(:region) {Region.new}
+
+  describe 'attributes' do
+    
+    it "responds to name" do
+      expect(region).to respond_to(:name)
+    end
   end
 
-  it "has a name" do
-    region = Region.new
-    expect(region).to respond_to(:name)
+  describe 'methods' do
+    
+    it 'responds to to_s' do
+      expect(region).to respond_to(:to_s)
+    end
+
+    it 'responds to self.unspecified' do
+      expect(Region).to respond_to(:unspecified)
+    end
   end
 
-  it "has a string representation that is its name" do
-    name = 'Mt. Hood'
-    region = Region.new(name: name)
-    result = region.to_s
+  describe 'associations' do
+    
+    it 'has many tickets' do
+      association = Region.reflect_on_association(:tickets)
+      expect(association.macro).to eq(:has_many)
+    end
   end
-
 end
