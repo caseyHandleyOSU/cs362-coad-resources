@@ -43,4 +43,14 @@ RSpec.describe Region, type: :model do
     end
 
   end
+
+  describe "validate uniqueness of" do
+
+    it "name" do
+      should validate_uniqueness_of(:name).
+        case_insensitive()
+    end
+
+  end
+
 end
