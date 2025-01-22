@@ -33,4 +33,14 @@ RSpec.describe Region, type: :model do
 
   end
 
+  describe "validate length of" do
+
+    it "name" do
+      should validate_length_of(:name).
+        is_at_least(1).
+        is_at_most(255).
+        on(:create)
+    end
+
+  end
 end
