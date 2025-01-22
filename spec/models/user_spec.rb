@@ -63,4 +63,27 @@ RSpec.describe User, type: :model do
 
   end
 
+  describe "validate pattern of" do
+
+    describe "email" do
+
+      it "valid" do
+        should allow_value("handlcas@oregonstate.edu").for(:email)
+      end
+
+      it "invalid" do
+        # No Domain
+        should_not allow_value("example").for(:email)
+        # No TLD
+        should_not allow_value("example@example").for(:email)
+        # No Domain
+        should_not allow_value("example@.com").for(:email)
+        # Invalid TLD
+        should_not allow_value("example@example.c0m").for(:email)
+      end
+
+    end
+
+  end
+
 end
