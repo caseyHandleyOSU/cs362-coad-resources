@@ -104,4 +104,35 @@ RSpec.describe Organization, type: :model do
 
   end
 
+  describe "validate presense of" do
+    
+    it "email" do
+      should validate_presence_of(:email)
+    end
+
+    it "name" do
+      should validate_presence_of(:name)
+    end
+
+    it "phone" do
+      should validate_presence_of(:phone)
+    end
+
+    it "status" do
+      should validate_presence_of(:status)
+    end
+
+    it "primary name" do
+      should validate_presence_of(:primary_name)
+    end
+
+    it "secondary name" do
+      should validate_presence_of(:secondary_name)
+    end
+
+    it "secondary phone" do
+      should validate_presence_of(:secondary_phone)
+    end
+
+  end
 end
