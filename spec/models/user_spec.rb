@@ -23,4 +23,16 @@ RSpec.describe User, type: :model do
 
   end
 
+  describe "validate presence of" do
+    
+    it "email" do 
+      should validate_presence_of(:email)
+    end
+
+    it "password" do 
+      should validate_presence_of(:password).
+        on(:create)
+    end
+
+  end
 end
