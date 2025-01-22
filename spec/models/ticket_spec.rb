@@ -55,4 +55,24 @@ RSpec.describe Ticket, type: :model do
 
   end
 
+  describe "validate presence of" do
+
+    it "name" do 
+      should validate_presence_of(:name)
+    end
+
+    it "phone" do 
+      should validate_presence_of(:phone)
+    end
+
+    it "region id" do 
+      should validate_presence_of(:region_id)
+    end
+
+    it "resource category id" do 
+      should validate_presence_of(:resource_category_id)
+    end
+
+  end
+
 end
