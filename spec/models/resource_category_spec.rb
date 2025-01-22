@@ -14,4 +14,11 @@ RSpec.describe ResourceCategory, type: :model do
 
   end
 
+  describe "validate presence of" do
+
+    it "name" do 
+      should validate_presence_of(:name)
+    end
+
+  end
 end
