@@ -141,18 +141,21 @@ RSpec.describe Organization, type: :model do
     it "email" do
       should validate_length_of(:email).
         is_at_least(1).
-        is_at_most(255)
+        is_at_most(255).
+        on(:create)
     end
 
     it "name" do
       should validate_length_of(:name).
         is_at_least(1).
-        is_at_most(255)
+        is_at_most(255).
+        on(:create)
     end
 
     it "the description" do
       should validate_length_of(:description).
-        is_at_most(1020)
+        is_at_most(1020).
+        on(:create)
     end
 
   end
@@ -167,6 +170,29 @@ RSpec.describe Organization, type: :model do
       should validate_uniqueness_of(:name).case_insensitive
     end
     
+  end
+
+  describe "validate pattern of" do
+
+    describe "email" do
+
+      it "valid" do
+        should allow_value("handlcas@oregonstate.edu").for(:email)
+        should allow_value("example@example.com").for(:email)
+      end
+
+      it "invalid" do
+        # Test without any domain
+        should_not allow_value("a").for(:email)
+        # Test without TLD
+        should_not allow_value("hello@osu").for(:email)
+        # Test with invalid TLD
+        should_not allow_value("badTld@osu.1234").for(:email)
+      end
+
+    end
+    
+
   end
 
 end
