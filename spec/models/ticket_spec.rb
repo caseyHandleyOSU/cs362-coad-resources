@@ -92,4 +92,46 @@ RSpec.describe Ticket, type: :model do
 
   end
 
+  describe "validate pattern of" do
+
+    describe "phone" do
+
+      it "valid" do
+        region = Region.create!(name: "region1")
+        resource = ResourceCategory.create!(name: "resource1")
+
+        ticket = Ticket.create!(
+          name: "ticket",
+          phone: "+1-555-555-1212",
+          region_id: region.id,
+          resource_category_id: resource.id,
+          closed: true
+        )
+
+        expect(ticket).to allow_value("+15555551212").for(:phone)
+        expect(ticket).to allow_value("15555551212").for(:phone)
+        expect(ticket).to allow_value("+15554567890").for(:phone)
+      end
+
+      it "invalid" do
+        region = Region.create!(name: "region1")
+        resource = ResourceCategory.create!(name: "resource1")
+
+        ticket = Ticket.create!(
+          name: "ticket",
+          phone: "+1-555-555-1212",
+          region_id: region.id,
+          resource_category_id: resource.id,
+          closed: true
+        )
+
+        expect(ticket).to_not allow_value("1").for(:phone)
+        expect(ticket).to_not allow_value("1234567890").for(:phone)
+        expect(ticket).to_not allow_value("5554567890").for(:phone)
+      end
+
+    end
+
+  end
+
 end
