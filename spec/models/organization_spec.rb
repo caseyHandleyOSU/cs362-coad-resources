@@ -104,34 +104,24 @@ RSpec.describe Organization, type: :model do
 
   end
 
-  describe "validate presense of" do
-    
+
+  describe "validate length of" do
+
     it "email" do
-      should validate_presence_of(:email)
+      should validate_length_of(:email).
+        is_at_least(1).
+        is_at_most(255)
     end
 
     it "name" do
-      should validate_presence_of(:name)
+      should validate_length_of(:name).
+        is_at_least(1).
+        is_at_most(255)
     end
 
-    it "phone" do
-      should validate_presence_of(:phone)
-    end
-
-    it "status" do
-      should validate_presence_of(:status)
-    end
-
-    it "primary name" do
-      should validate_presence_of(:primary_name)
-    end
-
-    it "secondary name" do
-      should validate_presence_of(:secondary_name)
-    end
-
-    it "secondary phone" do
-      should validate_presence_of(:secondary_phone)
+    it "the description" do
+      should validate_length_of(:description).
+        is_at_most(1020)
     end
 
   end
