@@ -35,4 +35,32 @@ RSpec.describe User, type: :model do
     end
 
   end
+
+  describe "validate length of" do
+
+    it "email" do
+      should validate_length_of(:email).
+        is_at_least(1).
+        is_at_most(255).
+        on(:create)
+    end
+
+    it "password" do
+      should validate_length_of(:password).
+        is_at_least(7).
+        is_at_most(255).
+        on(:create)
+    end
+
+  end
+
+  describe "validate uniqueness of" do
+
+    it "email" do
+      should validate_uniqueness_of(:email).
+        case_insensitive()
+    end
+
+  end
+
 end
