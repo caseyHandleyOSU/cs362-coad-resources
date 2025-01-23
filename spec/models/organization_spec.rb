@@ -1,7 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe Organization, type: :model do
-  let(:org) { Organization.new }
+  let(:org) { Organization.create!(
+    name: "myOrg1", email: "e@e.com", description: "", phone: "+15551234567",
+    primary_name: "1", secondary_name: "1", secondary_phone: "+15551234567"
+  ) }
 
 
   describe "attributes" do
@@ -192,6 +195,28 @@ RSpec.describe Organization, type: :model do
 
     end
     
+
+  end
+
+  describe "test static method" do
+
+    it "approve" do
+      org.approve
+      expect(org.status).to eq("approved")
+    end
+
+    it "reject" do
+      org.reject
+      expect(org.status).to eq("rejected")
+    end
+
+    it "default status" do
+      expect(org.status).to eq("submitted")
+    end
+
+    it "to_s" do
+      expect(org.to_s).to eq("myOrg1")
+    end
 
   end
 
