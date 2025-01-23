@@ -53,4 +53,17 @@ RSpec.describe Region, type: :model do
 
   end
 
+  describe "test static method" do
+
+    it "unspecified" do
+      expect(Region.unspecified).to eq(Region.find_or_create_by(name: 'Unspecified'))
+    end
+
+    it "to_s" do
+      name = "Hello, World"
+      expect(Region.new(name: name).to_s).to eq(name)
+    end
+
+  end
+
 end
