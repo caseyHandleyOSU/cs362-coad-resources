@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe ResourceCategory, type: :model do
-  let(:inactive_resource) { ResourceCategory.new(name: "Inactive", active: false) }
-  let(:active_resource) { ResourceCategory.new(name: "Active", active: true) }
+  let(:inactive_resource) { ResourceCategory.create!(name: "Inactive", active: false) }
+  let(:active_resource) { ResourceCategory.create!(name: "Active", active: true) }
 
 
   describe "associations" do
@@ -70,6 +70,20 @@ RSpec.describe ResourceCategory, type: :model do
     it "to_s" do
       expect(active_resource.to_s).to eq("Active")
       expect(inactive_resource.to_s).to eq("Inactive")
+    end
+
+  end
+
+  describe "test scope of" do
+
+    it "active" do
+      expect(ResourceCategory.active).to include(active_resource)
+      expect(ResourceCategory.active).not_to include(inactive_resource)
+    end
+
+    it "inactive" do
+      expect(ResourceCategory.inactive).to include(inactive_resource)
+      expect(ResourceCategory.inactive).not_to include(active_resource)
     end
 
   end
