@@ -1,7 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:user) { User.new }
+  let(:user) { User.create!(
+    email: "user@example.com", password: "1234567"
+  ) }
 
   describe "attributes" do
 
@@ -82,6 +84,18 @@ RSpec.describe User, type: :model do
         should_not allow_value("example@example.c0m").for(:email)
       end
 
+    end
+
+  end
+
+  describe "test function" do
+
+    it "set default role" do
+      expect(user.role).to eq("organization")
+    end
+
+    it "to s" do
+      expect(user.to_s).to eq("user@example.com")
     end
 
   end
