@@ -39,7 +39,7 @@ RSpec.describe Ticket, type: :model do
       phone: "+1-555-555-1212",
       region_id: region.id,
       resource_category_id: resource.id,
-      closed: true,
+      closed: false,
       organization_id: org.id
     )
   end
@@ -169,6 +169,53 @@ RSpec.describe Ticket, type: :model do
       expect(ticket.to_s).to eq("Ticket 1")
       expect(ticket_closed.to_s).to eq("Ticket 2")
       expect(ticket_org.to_s).to eq("Ticket 3")
+    end
+
+  end
+
+  describe "scope of" do
+
+    it "closed tickets" do
+      expect(Ticket.closed).to include(ticket_closed)
+      expect(Ticket.closed).not_to include(ticket)
+      expect(Ticket.closed).not_to include(ticket_org)
+    end
+
+    it "open tickets" do
+      expect(Ticket.open).to include(ticket)
+      expect(Ticket.open).not_to include(ticket_closed)
+      expect(Ticket.open).not_to include(ticket_org)
+    end
+
+    it "tickets with an organization" do
+      expect(Ticket.all_organization).to include(ticket_org)
+      expect(Ticket.all_organization).not_to include(ticket)
+      expect(Ticket.all_organization).not_to include(ticket_closed)
+    end
+
+    it "open tickets for an organization" do
+      expect(Ticket.organization(1)).to include(ticket_org)
+      expect(Ticket.organization(1)).not_to include(ticket)
+      expect(Ticket.organization(1)).not_to include(ticket_closed)
+    end
+
+    it "closed tickets for an organization" do
+      expect(Ticket.closed_organization(1)).not_to include(ticket_org)
+      expect(Ticket.closed_organization(1)).not_to include(ticket)
+      expect(Ticket.closed_organization(1)).not_to include(ticket_closed)
+      expect(Ticket.closed_organization(1)).to be_empty
+    end
+
+    it "all tickets for a region" do
+      expect(Ticket.region(1)).to include(ticket)
+      expect(Ticket.region(1)).not_to include(ticket_org)
+      expect(Ticket.region(1)).not_to include(ticket_closed)
+    end
+
+    it "all tickets for a resource category" do
+      expect(Ticket.resource_category(1)).to include(ticket)
+      expect(Ticket.resource_category(1)).not_to include(ticket_org)
+      expect(Ticket.resource_category(1)).not_to include(ticket_closed)
     end
 
   end
