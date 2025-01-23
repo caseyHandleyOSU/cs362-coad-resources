@@ -1,18 +1,48 @@
 require 'rails_helper'
 
 RSpec.describe Ticket, type: :model do
-  let(:ticket) { 
+  let(:ticket) do
     region = Region.create!(name: "region1")
     resource = ResourceCategory.create!(name: "resource1")
 
-    ticket = Ticket.create!(
+    Ticket.create!(
+      name: "ticket",
+      phone: "+1-555-555-1212",
+      region_id: region.id,
+      resource_category_id: resource.id,
+      closed: false
+    )
+  end
+
+  let(:ticket_closed) do
+    region = Region.create!(name: "region2")
+    resource = ResourceCategory.create!(name: "resource2")
+
+    Ticket.create!(
       name: "ticket",
       phone: "+1-555-555-1212",
       region_id: region.id,
       resource_category_id: resource.id,
       closed: true
     )
-   }
+  end
+    
+  let(:ticket_org) do
+    region = Region.create!(name: "region3")
+    resource = ResourceCategory.create!(name: "resource3")
+    org = Organization.create!(
+      name: "myOrg1", email: "e@e.com", description: "", phone: "+15551234567",
+      primary_name: "1", secondary_name: "1", secondary_phone: "+15551234567")
+
+    Ticket.create!(
+      name: "ticket",
+      phone: "+1-555-555-1212",
+      region_id: region.id,
+      resource_category_id: resource.id,
+      closed: true,
+      organization_id: org.id
+    )
+  end
 
   describe "attributes" do
 
@@ -119,6 +149,26 @@ RSpec.describe Ticket, type: :model do
         expect(ticket).to_not allow_value("5554567890").for(:phone)
       end
 
+    end
+
+  end
+
+  describe "test static method" do
+
+    it "open?" do
+      expect(ticket.open?).to be_truthy() 
+      expect(ticket_closed.open?).to be_falsy()
+    end
+
+    it "captured?" do
+      expect(ticket.captured?).to be_falsy()
+      expect(ticket_org.captured?).to be_truthy()
+    end
+
+    it "to_s" do
+      expect(ticket.to_s).to eq("Ticket 1")
+      expect(ticket_closed.to_s).to eq("Ticket 2")
+      expect(ticket_org.to_s).to eq("Ticket 3")
     end
 
   end
