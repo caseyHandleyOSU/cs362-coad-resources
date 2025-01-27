@@ -66,4 +66,26 @@ RSpec.describe Ticket, type: :model do
             expect(ticket.to_s).to eq("Ticket #{ticket.id}")
         end
     end
+
+    describe 'length validations' do
+        it 'name' do
+            should validate_length_of(:name).is_at_least(1).is_at_most(255).on(:create)
+        end
+
+        it 'description' do
+            should validate_length_of(:description).is_at_most(1020).on(:create)
+        end
+    end
+
+    describe 'phone validations' do
+        it 'valid' do
+            expect(ticket).to allow_value("+3605899862").for(:phone)
+            expect(ticket).to allow_value("3605899862").for(:phone)
+        end
+
+        it 'invalid' do
+            expect(ticket).to_not allow_value('2').for(:phone)
+            expect(ticket).to_not allow_value("1234567890").for(:phone)
+        end
+    end
 end

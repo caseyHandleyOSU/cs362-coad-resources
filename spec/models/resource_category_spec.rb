@@ -73,4 +73,16 @@ RSpec.describe ResourceCategory, type: :model do
             expect(ResourceCategory.reflect_on_association(:tickets).macro).to eq(:has_many)
         end
     end
+
+    describe 'length validations' do
+        it "name" do
+            should validate_length_of(:name).is_at_least(1).is_at_most(255).on(:create)
+        end
+    end
+
+    describe 'unique validations' do
+        it 'name' do
+            should validate_uniqueness_of(:name).case_insensitive
+        end
+    end
 end
