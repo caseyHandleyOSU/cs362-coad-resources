@@ -132,4 +132,70 @@ RSpec.describe Organization, type: :model do
             expect(org.to_s).to eq("Test Org")
         end
     end
+
+    describe 'presence validations' do
+        it "email" do
+            should validate_presence_of(:email)
+        end
+
+        it "phone" do
+            should validate_presence_of(:phone)
+        end 
+
+        it "status" do
+            should validate_presence_of(:status)
+        end
+
+        it "primary_name" do
+            should validate_presence_of(:primary_name)
+        end
+
+        it "secondary_name" do
+            should validate_presence_of(:secondary_name)
+        end
+
+        it "secondary_phone" do
+            should validate_presence_of(:secondary_phone)
+        end
+    end
+
+    describe 'length validations' do
+        it "email" do
+            should validate_length_of(:email).is_at_least(1).is_at_most(255).on(:create)
+        end
+
+        it "name" do
+            should validate_length_of(:name).is_at_least(1).is_at_most(255).on(:create)
+        end
+
+        it "description" do
+            should validate_length_of(:description).is_at_most(1020).on(:create)
+        end
+    end
+
+    describe "unique validations" do
+        it "email" do
+            should validate_uniqueness_of(:email).case_insensitive
+        end
+
+        it "name" do
+            should validate_uniqueness_of(:name).case_insensitive
+        end
+    end
+
+    describe 'pattern validations' do
+        describe 'email' do
+
+            it 'is valid' do
+                should allow_value("someemail@email.com").for(:email)
+            end
+
+            it 'is not valid' do
+                should_not allow_value("bobby").for(:email)
+                should_not allow_value("bobby@email").for(:email)
+                should_not allow_value("bobby@email.th3").for(:email)
+            end
+        end
+    end
+
 end
