@@ -85,4 +85,21 @@ RSpec.describe ResourceCategory, type: :model do
             should validate_uniqueness_of(:name).case_insensitive
         end
     end
+
+    describe 'scope' do
+        let!(:active_category) { ResourceCategory.create!(name: "Active Category", active: true) }
+        let!(:inactive_category) { ResourceCategory.create!(name: "Inactive Category", active: false) }
+        
+
+
+        it 'active' do
+            expect(ResourceCategory.active).to include(active_category)
+            expect(ResourceCategory.active).not_to include(inactive_category)
+        end
+
+        it 'inactive' do
+            expect(ResourceCategory.inactive).to include(inactive_category)
+            expect(ResourceCategory.inactive).not_to include(active_category)
+        end
+    end
 end
