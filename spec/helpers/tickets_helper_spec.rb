@@ -11,5 +11,6 @@ require 'rails_helper'
 #   end
 # end
 RSpec.describe TicketsHelper, type: :helper do
-
+    
+    
 end
