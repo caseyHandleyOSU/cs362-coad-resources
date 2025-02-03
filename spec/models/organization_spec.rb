@@ -201,21 +201,26 @@ RSpec.describe Organization, type: :model do
   describe "test static method" do
 
     it "approve" do
+      org = FactoryBot.build_stubbed(:organization)
       org.approve
       expect(org.status).to eq("approved")
     end
 
     it "reject" do
+      org = FactoryBot.build_stubbed(:organization)
       org.reject
       expect(org.status).to eq("rejected")
     end
 
     it "default status" do
+      org = FactoryBot.build_stubbed(:organization)
       expect(org.status).to eq("submitted")
     end
 
     it "to_s" do
-      expect(org.to_s).to eq("myOrg1")
+      name = "myOrg1"
+      org = FactoryBot.build_stubbed(:organization, name: name)
+      expect(org.to_s).to eq(name)
     end
 
   end
