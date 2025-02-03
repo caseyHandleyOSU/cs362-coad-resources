@@ -1,9 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe ResourceCategory, type: :model do
-  let(:inactive_resource) { ResourceCategory.create!(name: "Inactive", active: false) }
-  let(:active_resource) { ResourceCategory.create!(name: "Active", active: true) }
-
 
   describe "associations" do
 
@@ -53,23 +50,31 @@ RSpec.describe ResourceCategory, type: :model do
     end
 
     it "activate" do
-      inactive_resource.activate
-      expect(inactive_resource.active).to be_truthy
+      r = FactoryBot.create(:inactive_resource)
+      r.activate
+      expect(r.active).to be_truthy
     end
 
     it "deactivate" do
-      active_resource.deactivate
-      expect(active_resource.active).to be_falsy
+      r = FactoryBot.create(:active_resource)
+      r.deactivate
+      expect(r.active).to be_falsy
     end
 
     it "inactive?" do
-      expect(active_resource.inactive?).to be_falsy
-      expect(inactive_resource.inactive?).to be_truthy
+      active = FactoryBot.build_stubbed(:active_resource)
+      inactive = FactoryBot.build_stubbed(:inactive_resource)
+
+      expect(active.inactive?).to be_falsy
+      expect(inactive.inactive?).to be_truthy
     end
 
     it "to_s" do
-      expect(active_resource.to_s).to eq("Active")
-      expect(inactive_resource.to_s).to eq("Inactive")
+      active    = FactoryBot.build_stubbed(:active_resource, name: "Active")
+      inactive  = FactoryBot.build_stubbed(:inactive_resource, name: "Inactive")
+
+      expect(active.to_s).to eq("Active")
+      expect(inactive.to_s).to eq("Inactive")
     end
 
   end
@@ -77,13 +82,19 @@ RSpec.describe ResourceCategory, type: :model do
   describe "test scope of" do
 
     it "active" do
-      expect(ResourceCategory.active).to include(active_resource)
-      expect(ResourceCategory.active).not_to include(inactive_resource)
+      active    = FactoryBot.create(:active_resource, name: "Active")
+      inactive  = FactoryBot.create(:inactive_resource, name: "Inactive")
+      
+      expect(ResourceCategory.active).to include(active)
+      expect(ResourceCategory.active).not_to include(inactive)
     end
 
     it "inactive" do
-      expect(ResourceCategory.inactive).to include(inactive_resource)
-      expect(ResourceCategory.inactive).not_to include(active_resource)
+      active    = FactoryBot.create(:active_resource, name: "Active")
+      inactive  = FactoryBot.create(:inactive_resource, name: "Inactive")
+      
+      expect(ResourceCategory.inactive).to include(inactive)
+      expect(ResourceCategory.inactive).not_to include(active)
     end
 
   end
