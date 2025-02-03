@@ -11,7 +11,7 @@ RSpec.describe Region, type: :model do
 
     it "has a string representation that is its name" do
       name = 'Mt. Hood'
-      region = Region.new(name: name)
+      region = FactoryBot.build_stubbed(:region, name: name)
       result = region.to_s
     end
 
@@ -61,7 +61,8 @@ RSpec.describe Region, type: :model do
 
     it "to_s" do
       name = "Hello, World"
-      expect(Region.new(name: name).to_s).to eq(name)
+      region = FactoryBot.build_stubbed(:region, name: name)
+      expect(region.to_s).to eq(name)
     end
 
   end
