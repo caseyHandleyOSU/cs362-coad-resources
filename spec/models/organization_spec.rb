@@ -1,15 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe Organization, type: :model do
-  let(:org) { Organization.create!(
-    name: "myOrg1", email: "e@e.com", description: "", phone: "+15551234567",
-    primary_name: "1", secondary_name: "1", secondary_phone: "+15551234567"
-  ) }
+  let(:org) { FactoryBot.build_stubbed(:organization) }
 
 
   describe "attributes" do
 
     it "has a name" do
+      # org = FactoryBot.build(:organization)
       expect(org).to respond_to(:name)
     end
 
