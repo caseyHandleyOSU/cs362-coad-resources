@@ -1,18 +1,19 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:user) { User.create!(
-    email: "user@example.com", password: "1234567"
-  ) }
 
   describe "attributes" do
 
+    before(:each) do
+      @user = FactoryBot.build(:user)
+    end
+
     it "has an email" do
-      expect(user).to respond_to(:email)
+      expect(@user).to respond_to(:email)
     end
 
     it "has a role" do
-      expect(user).to respond_to(:role)
+      expect(@user).to respond_to(:role)
     end
 
   end
@@ -90,12 +91,17 @@ RSpec.describe User, type: :model do
 
   describe "test function" do
 
+    before(:each) do
+      @email = "user@example.com"
+      @user = FactoryBot.build(:user, email: @email)
+    end
+
     it "set default role" do
-      expect(user.role).to eq("organization")
+      expect(@user.role).to eq("organization")
     end
 
     it "to s" do
-      expect(user.to_s).to eq("user@example.com")
+      expect(@user.to_s).to eq(@email)
     end
 
   end
