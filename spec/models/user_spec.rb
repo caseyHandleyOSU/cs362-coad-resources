@@ -1,68 +1,44 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do 
+  let(:user) { build(:user) }
 
-    let(:user) { User.new }
+  describe "attributes" do
+    it { should respond_to(:email) }
+    it { should respond_to(:encrypted_password) }
+    it { should respond_to(:reset_password_token) }
+    it { should respond_to(:confirmation_token) }
+    it { should respond_to(:unconfirmed_email) }
+    it { should respond_to(:role) }
+    it { should respond_to(:organization_id) }
+  end
 
-    describe "attributes" do
+  describe "associations" do
+    it { should belong_to(:organization).optional }
+  end
 
-        it "responds to email" do
-            expect(user).to respond_to(:email)
-        end
+  describe "methods" do
+    it "returns string of email" do
+      user.email = "TestEmail@gmail.com"
+      expect(user.to_s).to eq("TestEmail@gmail.com")
+    end
+  end
 
-        it "responds to encrypted_password" do
-            expect(user).to respond_to(:encrypted_password)
-        end
+  describe "validations" do
+    it { should validate_presence_of(:email) }
+    it { should validate_length_of(:email).is_at_least(1).is_at_most(255).on(:create) }
+    it { should validate_uniqueness_of(:email).case_insensitive }
+    it { should validate_length_of(:password).is_at_least(7).is_at_most(255).on(:create) }
+  end
 
-        it "responds to reset_password_token" do
-            expect(user).to respond_to(:reset_password_token)
-        end
-
-        it "responds to confirmation_token" do
-            expect(user).to respond_to(:confirmation_token)
-        end
-
-        it "responds to unconfirmed_email" do
-            expect(user).to respond_to(:unconfirmed_email)
-        end
-
-        it "responds to role" do
-            expect(user).to respond_to(:role)
-        end
-
-        it "responds to organization_id" do
-            expect(user).to respond_to(:organization_id)
-        end
+  describe "role management" do
+    it "defaults to organization role" do
+      expect(user.role).to eq("organization")
     end
 
-    describe "associations" do
-
-        it "belongs_to organization" do
-            expect(User.reflect_on_association(:organization).macro).to eq(:belongs_to)
-        end
+    it "can be an admin" do
+      admin_user = build(:user, :admin)
+      expect(admin_user.role).to eq("admin")
     end
-
-    describe "methods" do
-
-        it "returns string of email" do
-            user.email = "TestEmail@gmail.com"
-            expect(user.to_s).to eq("TestEmail@gmail.com")
-        end
-    end
-
-    describe 'length validations' do
-        it 'email' do
-            should validate_length_of(:email).is_at_least(1).is_at_most(255).on(:create)
-        end
-
-        it 'password' do
-            should validate_length_of(:password).is_at_least(7).is_at_most(255).on(:create)
-        end
-    end
-
-    describe 'unique validations' do
-        it 'email' do
-            should validate_uniqueness_of(:email).case_insensitive
-        end
-    end
+  end
 end
