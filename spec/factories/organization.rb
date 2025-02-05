@@ -1,7 +1,7 @@
 FactoryBot.define do
 
   sequence :org_name do |n|
-    "organization #{n}"
+    "organization_#{n}"
   end
 
   factory :organization do
