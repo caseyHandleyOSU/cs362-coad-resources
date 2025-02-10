@@ -9,6 +9,10 @@ FactoryBot.define do
     email     { generate(:user_email) }
     password  { "wowASecurePassword" }
 
+    trait :admin do
+      role { :admin }
+    end
+
   end
 
 end
