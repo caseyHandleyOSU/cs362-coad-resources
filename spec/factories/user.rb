@@ -1,7 +1,5 @@
 FactoryBot.define do
 
-  before(:create) { |user| user.skip_confirmation! }
-
   sequence :user_email do |n|
     "user#{n}@user.com"
   end
@@ -10,6 +8,8 @@ FactoryBot.define do
 
     email     { generate(:user_email) }
     password  { "wowASecurePassword" }
+
+    before(:create) { |user| user.skip_confirmation! }
 
     trait :admin do
       role { :admin }
