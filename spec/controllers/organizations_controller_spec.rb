@@ -187,4 +187,109 @@ RSpec.describe OrganizationsController, type: :controller do
     end
 
   end
+
+  describe "as an un-approved user" do
+    # Can only edit and update
+    before(:each) do 
+      org = FactoryBot.create(:organization, :unapproved)
+      @user = FactoryBot.create(:user)
+      sign_in @user
+    end
+
+    it "GET index" do
+      get(
+        :index
+      )
+      expect(response).to be_successful()
+    end
+
+    it "GET new" do
+      get(
+        :new
+      )
+      expect(response).to be_successful()
+    end
+
+    it "POST create" do
+      # org = FactoryBot.create(:organization)
+      admin = FactoryBot.create(:user, :admin)
+      post(
+        :create,
+        params: {
+          organization: FactoryBot.attributes_for(:organization)
+        }
+      )
+      expect(response).to redirect_to(organization_application_submitted_path)
+    end
+
+    it "GET edit" do
+      org = FactoryBot.create(:organization)
+      get(
+        :edit,
+        params: {
+          id: org.id,
+          organization: FactoryBot.attributes_for(:organization)
+        }
+      )
+      expect(response).to redirect_to(dashboard_path)
+    end
+
+    it "PATCH update" do
+      org = FactoryBot.create(:organization)
+      patch(
+        :update,
+        params: {
+          id: org.id,
+          organization: FactoryBot.attributes_for(:organization)
+        }
+      )
+      expect(response).to redirect_to(dashboard_path)
+    end
+
+    it "PUT update" do
+      org = FactoryBot.create(:organization)
+      put(
+        :update,
+        params: {
+          id: org.id,
+          organization: FactoryBot.attributes_for(:organization)
+        }
+      )
+      expect(response).to redirect_to(dashboard_path)
+    end
+
+    it "GET show" do
+      org = FactoryBot.create(:organization)
+      get(
+        :show,
+        params: {
+          id: org.id
+        }
+      )
+      expect(response).not_to be_successful()
+    end
+
+    it "POST approve" do
+      org = FactoryBot.create(:organization)
+      post(
+        :approve,
+        params: {
+          id: org.id
+        }
+      )
+      expect(response).to redirect_to(dashboard_path)
+    end
+
+    it "POST reject" do
+      org = FactoryBot.create(:organization)
+      post(
+        :reject,
+        params: {
+          id: org.id
+        }
+      )
+      expect(response).to redirect_to(dashboard_path)
+    end
+
+  end
 end
