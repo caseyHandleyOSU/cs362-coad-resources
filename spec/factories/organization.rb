@@ -12,6 +12,15 @@ FactoryBot.define do
     primary_name    { "#{name}_primary "}
     secondary_name  { "#{name}_secondary "}
     secondary_phone { "+15551234567" }
+    
+    trait :approved do
+      status { :approved }
+    end
+
+    trait :unapproved do
+      status { :submitted }
+    end
+
   end
 
 end
