@@ -14,15 +14,30 @@ RSpec.describe TicketsController, type: :controller do
       expect(response).to be_successful()
     end
 
-    it "POST create" do
-      post(
-        :create,
-        params: {
-          ticket: FactoryBot.attributes_for(:ticket)
-        }
-      )
+    describe "POST create" do
 
-      expect(response).to be_successful()
+      it "with valid ticket" do
+        post(
+          :create,
+          params: {
+            ticket: FactoryBot.attributes_for(:ticket, :with_category, :with_region)
+          }
+        )
+
+        expect(response).to redirect_to(ticket_submitted_path)
+      end
+
+      it "with invalid ticket" do
+        post(
+          :create,
+          params: {
+            ticket: FactoryBot.attributes_for(:ticket)
+          }
+        )
+
+        expect(response).to be_successful()
+      end
+
     end
 
     it "GET show" do
@@ -91,15 +106,30 @@ RSpec.describe TicketsController, type: :controller do
       expect(response).to be_successful()
     end
 
-    it "POST create" do
-      post(
-        :create,
-        params: {
-          ticket: FactoryBot.attributes_for(:ticket)
-        }
-      )
+    describe "POST create" do
+      
+      it "with a valid ticket" do
+        post(
+          :create,
+          params: {
+            ticket: FactoryBot.attributes_for(:ticket, :with_category, :with_region)
+          }
+        )
 
-      expect(response).to be_successful()
+        expect(response).to redirect_to(ticket_submitted_path)
+      end
+
+      it "with invalid ticket" do
+        post(
+          :create,
+          params: {
+            ticket: FactoryBot.attributes_for(:ticket)
+          }
+        )
+
+        expect(response).to be_successful()
+      end
+
     end
 
     it "GET show" do
