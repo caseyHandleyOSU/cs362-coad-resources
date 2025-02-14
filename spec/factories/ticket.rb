@@ -20,6 +20,14 @@ FactoryBot.define do
       closed { false }
     end
 
+    trait :with_region do
+      region_id { create(:region).id }
+    end
+
+    trait :with_category do
+      resource_category_id { create(:resource_category).id }
+    end
+
   end
 
 end
