@@ -87,11 +87,21 @@ RSpec.describe TicketsController, type: :controller do
 
       expect(response).to redirect_to(dashboard_path)
     end
+
+    it "DELETE destroy" do
+      ticket = FactoryBot.create(:ticket)
+      delete(
+        :destroy,
+        params: {
+          id: ticket.id
+        }
+      )
+      expect(response).not_to be_successful()
+    end
     
   end
 
   describe "as an organization user" do
-    let(:user) {  }
     before(:each) { 
       @org = FactoryBot.create(:organization, :approved)
       user = FactoryBot.create(:user, organization_id: @org.id)
@@ -211,6 +221,17 @@ RSpec.describe TicketsController, type: :controller do
       end
 
     end
-    
+
+    it "DELETE destroy" do
+      ticket = FactoryBot.create(:ticket)
+      delete(
+        :destroy,
+        params: {
+          id: ticket.id
+        }
+      )
+      expect(response).not_to be_successful()
+    end
+
   end
 end
