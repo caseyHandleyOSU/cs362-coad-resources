@@ -63,6 +63,47 @@ RSpec.describe DashboardController, type: :controller do
     end
 
   end
+
+  describe "Open status" do
+    let(:params) { {status: 'Open'} }
+
+    it_behaves_like "dashboard controller tests"
+
+  end
+
+  describe "Closed status" do
+    let(:params) { {status: 'Closed'} }
+    
+    it_behaves_like "dashboard controller tests"
+
+  end
+
+  describe "Captured status" do
+    let(:params) { {status: 'Captured'} }
+    
+    it_behaves_like "dashboard controller tests"
+
+  end
+
+  describe "My Captured status" do
+    let(:params) { {status: 'My Captured'} }
+    
+    it_behaves_like "dashboard controller tests"
+
+  end
+
+  describe "My Closed status" do
+    let(:params) { {status: 'My Closed'} }
+    
+    it_behaves_like "dashboard controller tests"
+
+  end
+
+  describe "no status" do
+    let(:params) { {status: ''} }
+    
+    it_behaves_like "dashboard controller tests"
+
   end
   
 end
