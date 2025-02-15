@@ -31,6 +31,23 @@ RSpec.describe DashboardController, type: :controller do
 
     end
 
+    describe "as a logged in organization user" do
+      before(:each) {
+        org = FactoryBot.create(:organization, :approved)
+        user = FactoryBot.create(:user, organization_id: org)
+        sign_in user 
+      }
+      after(:each) { expect(response).to be_successful() }
+
+      it "test index" do
+        get(
+          :index,
+          params: params
+        )
+      end
+
+    end
+
     describe "as an admin user" do
       let(:user) { FactoryBot.create(:user, :admin) }
       before(:each) { sign_in user }
