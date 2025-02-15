@@ -12,52 +12,50 @@ require 'rails_helper'
 # end
 RSpec.describe DashboardHelper, type: :helper do
 
-  let(:admin_usr) { 
-    User.create!(
-      email: "email@email.com", password: "1234567", role: :admin
-    )
-  }
+  shared_examples "dashboard equals" do
+     it { expect(helper.dashboard_for(@user)).to eq(@dash) }
+  end
 
-  let(:user) {
-    User.create!(
-      email: "email3@email.com", password: "1234567",
-    )
-  }
+  describe "tests dashboard for" do
 
-  let(:sub_org_usr) { 
-    org = Organization.create!(
-      name: "myOrg1", email: "e@e.com", description: "", phone: "+15551234567",
-      primary_name: "1", secondary_name: "1", secondary_phone: "+15551234567"
-    )
+    describe "admin user" do
+      before do
+        @user = FactoryBot.create(:user, :admin)
+        @dash = "admin_dashboard"
+      end
+      
+      it_behaves_like "dashboard equals"
+      
+    end
 
-    User.create(
-      email: "email@email.com", password: "1234567", role: :organization,
-      organization: org
-    )
-  }
+    describe "submitted organization user" do
+      before do
+        org = FactoryBot.create(:organization, :unapproved)
+        @user = FactoryBot.create(:user, organization_id: org.id)
+        @dash = "organization_submitted_dashboard"
+      end
 
-  let(:app_org_usr) { 
-    org = Organization.create!(
-      name: "myOrg2", email: "e2@e.com", description: "", phone: "+15551234567",
-      primary_name: "1", secondary_name: "1", secondary_phone: "+15551234567",
-      status: :approved
-    )
+      it_behaves_like "dashboard equals"
 
-    User.create!(
-      email: "email2@email.com", password: "1234567", role: :organization,
-      organization: org
-    )
-  }
+    end
 
-  describe "tests dashboard helper" do
+    describe "approved organization user" do
+      before do
+        org = FactoryBot.create(:organization, :approved)
+        @user = FactoryBot.create(:user, organization_id: org.id)
+        @dash = "organization_approved_dashboard"
+      end
+      
+      it_behaves_like "dashboard equals"
+    end
 
-    it "dashboard for" do
-
-      expect(helper.dashboard_for(admin_usr)).to eq("admin_dashboard")
-      expect(helper.dashboard_for(sub_org_usr)).to eq("organization_submitted_dashboard")
-      expect(helper.dashboard_for(app_org_usr)).to eq("organization_approved_dashboard")
-      expect(helper.dashboard_for(user)).to eq("create_application_dashboard")
-
+    describe "admin" do
+      before do
+        @user = FactoryBot.create(:user)
+        @dash = "create_application_dashboard"
+      end
+      
+      it_behaves_like "dashboard equals"
     end
 
   end
