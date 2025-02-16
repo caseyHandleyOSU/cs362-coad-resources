@@ -22,8 +22,8 @@ jobs:
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@78c01b705fd9d5ad960d432d3a0cfa341d50e410 # v1.179.1
         with:
-          ruby-version: 2.7.2
-          bundler-cache: true
+          ruby-version: '2.7.2'
+          bundler-cache: false
       # Add or replace test runners here
       - name: Run tests
         run: |
