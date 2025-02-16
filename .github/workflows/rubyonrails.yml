@@ -12,7 +12,7 @@ on:
     branches: [ "master" ]
 jobs:
   test:
-    runs-on: ubuntu-lunar
+    runs-on: ubuntu-latest
     env:
       RAILS_ENV: test
       DATABASE_URL: "postgres://rails:password@localhost:5432/rails_test"
