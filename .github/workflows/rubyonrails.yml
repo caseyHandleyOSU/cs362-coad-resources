@@ -28,4 +28,4 @@ jobs:
       - name: Run tests
         run: |
           sudo apt install rbenv ruby-build
-          bundle exec rspec
+          bundle exec rspec spec
