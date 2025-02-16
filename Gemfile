@@ -22,6 +22,7 @@ gem 'sqlite3', '~> 1.5.4'
 gem 'turbolinks', '~> 5.2.1'
 gem 'uglifier', '~> 4.2.0'
 gem 'net-http', '~> 0.4.0'
+gem 'rspec-rails', '~> 5.1.2'
 
 group :development, :test do
   gem 'byebug', '~> 11.1.3', platforms: [:mri, :mingw, :x64_mingw]
