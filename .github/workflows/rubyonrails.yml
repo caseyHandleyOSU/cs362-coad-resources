@@ -28,5 +28,4 @@ jobs:
       # Add or replace test runners here
       - name: Run tests
         run: |
-          rbenv rehash
-          rspec
+          bundle exec rspec
