@@ -27,4 +27,6 @@ jobs:
           bundler-cache: true
       # Add or replace test runners here
       - name: Run tests
-        run: rspec
+        run: |
+          rbenv rehash
+          rspec
