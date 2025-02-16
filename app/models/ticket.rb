@@ -1,3 +1,7 @@
+# CH 1-13-25
+# Represents a support ticket.
+# Belongs to a resource category, and optionally an organization.
+
 class Ticket < ApplicationRecord
 
   belongs_to :region

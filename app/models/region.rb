@@ -1,3 +1,6 @@
+# CH 1-13-25
+# Represents a region
+
 class Region < ApplicationRecord
 
   has_many :tickets
