@@ -2,18 +2,22 @@ require 'rails_helper'
 
 RSpec.describe DashboardController, type: :controller do
 
+  shared_examples "GET index" do
+    it do
+      get(
+        :index,
+        params: params
+      )
+    end
+  end
+
   shared_examples "dashboard controller tests" do
 
     describe "as a logged out user" do
       let(:user) { FactoryBot.create(:user) }
       after(:each) { expect(response).not_to be_successful()}
 
-      it "test index" do
-        get(
-          :index,
-          params: params
-        )
-      end
+      it_behaves_like "GET index"
 
     end
 
@@ -22,12 +26,7 @@ RSpec.describe DashboardController, type: :controller do
       before(:each) { sign_in user }
       after(:each) { expect(response).to be_successful() }
 
-      it "test index" do
-        get(
-          :index,
-          params: params
-        )
-      end
+      it_behaves_like "GET index"
 
     end
 
@@ -39,12 +38,7 @@ RSpec.describe DashboardController, type: :controller do
       }
       after(:each) { expect(response).to be_successful() }
 
-      it "test index" do
-        get(
-          :index,
-          params: params
-        )
-      end
+      it_behaves_like "GET index"
 
     end
 
