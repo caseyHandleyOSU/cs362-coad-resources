@@ -33,7 +33,7 @@ RSpec.describe DashboardController, type: :controller do
     describe "as a logged in organization user" do
       before(:each) {
         org = FactoryBot.create(:organization, :approved)
-        user = FactoryBot.create(:user, organization_id: org)
+        user = FactoryBot.create(:user, organization_id: org.id)
         sign_in user 
       }
       after(:each) { expect(response).to be_successful() }
