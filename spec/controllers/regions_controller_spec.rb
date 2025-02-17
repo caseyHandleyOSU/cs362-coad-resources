@@ -173,22 +173,36 @@ RSpec.describe RegionsController, type: :controller do
     let(:user) { FactoryBot.create(:user, :admin) }
     before(:each) { sign_in user }
 
-    it "test index" do
+    it "GET index" do
       expect(get(:index)).to be_successful
     end
 
-    it "test creating" do
-      post(
-        :create,
-        params: { 
-            region: FactoryBot.attributes_for(:region)
-          }
-      )
+    describe "POST creating" do
+      it "validly" do 
+        post(
+          :create,
+          params: { 
+              region: FactoryBot.attributes_for(:region)
+            }
+        )
 
-      expect(response).to redirect_to(regions_path)
+        expect(response).to redirect_to(regions_path)
+      end
+
+      it "invalidly" do
+        post(
+          :create,
+          params: { 
+              region: { name: nil }
+            }
+        )
+
+        expect(response).not_to redirect_to(regions_path)
+        expect(response).to be_successful()
+      end
     end
 
-    it "test new" do
+    it "GET new" do
       region = FactoryBot.create(:region)
       get(
         :new,
@@ -224,17 +238,34 @@ RSpec.describe RegionsController, type: :controller do
       expect(response).to be_successful()
     end
 
-    it "test PUT update" do
-      region = FactoryBot.create(:region)
-      put(
-        :update,
-        params: {
-          id: region.id,
-          region: FactoryBot.attributes_for(:region)
-        }
-      )
+    describe "test PUT update" do
 
-      expect(response).to redirect_to(region)
+      it "validly" do 
+        region = FactoryBot.create(:region)
+        put(
+          :update,
+          params: {
+            id: region.id,
+            region: FactoryBot.attributes_for(:region)
+          }
+        )
+
+        expect(response).to redirect_to(region)
+      end
+
+      it "invalidly" do
+        region = FactoryBot.create(:region)
+        put(
+          :update,
+          params: {
+            id: region.id,
+            region: { name: nil }
+          }
+        )
+
+        expect(response).not_to redirect_to(region)
+        expect(response).to be_successful()
+      end
 
     end
 
