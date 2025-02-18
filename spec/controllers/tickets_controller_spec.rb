@@ -154,16 +154,33 @@ RSpec.describe TicketsController, type: :controller do
       expect(response).to be_successful()
     end
 
-    it "POST capture" do
-      ticket = FactoryBot.create(:ticket)
-      post(
-        :capture,
-        params: {
-          id: ticket.id
-        }
-      )
+    describe "POST capture" do
+      
+      it "an owned ticket" do
+        ticket = FactoryBot.create(:ticket)
+        post(
+          :capture,
+          params: {
+            id: ticket.id
+          }
+        )
 
-      expect(response).to redirect_to(dashboard_path << "#tickets:open")
+        expect(response).to redirect_to(dashboard_path << "#tickets:open")
+      end
+
+      it "another's ticket" do
+        other_org = FactoryBot.create(:organization, :approved)
+        ticket = FactoryBot.create(:ticket, organization_id: other_org.id)
+        post(
+          :capture,
+          params: {
+            id: ticket.id
+          }
+        )
+
+        expect(response).not_to redirect_to(dashboard_path << "#tickets:open")
+      end
+
     end
 
     describe "POST release" do
