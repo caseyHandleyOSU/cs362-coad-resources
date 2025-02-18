@@ -129,16 +129,36 @@ RSpec.describe OrganizationsController, type: :controller do
       expect(response).to be_successful
     end
 
-    it "PATCH update" do
-      org = FactoryBot.create(:organization)
-      patch(
-        :update,
-        params: {
-          id: org.id,
-          organization: FactoryBot.attributes_for(:organization)
-        }
-      )
-      expect(response).to redirect_to(organization_path(id: org.id))
+    describe "PATCH update" do
+
+      it "correctly" do
+        org = FactoryBot.create(:organization)
+        patch(
+          :update,
+          params: {
+            id: org.id,
+            organization: FactoryBot.attributes_for(:organization)
+          }
+        )
+        expect(response).to redirect_to(organization_path(id: org.id))
+      end
+
+      it "incorrectly" do
+        allow_any_instance_of(Organization).
+          to receive(:update).
+          and_return(false)
+        org = FactoryBot.create(:organization)
+        patch(
+          :update,
+          params: {
+            id: org.id,
+            organization: FactoryBot.attributes_for(:organization)
+          }
+        )
+        expect(response).not_to redirect_to(dashboard_path)
+        expect(response).to be_successful()
+      end
+
     end
 
     it "PUT update" do
@@ -209,16 +229,31 @@ RSpec.describe OrganizationsController, type: :controller do
       expect(response).to be_successful()
     end
 
-    it "POST create" do
-      # org = FactoryBot.create(:organization)
-      admin = FactoryBot.create(:user, :admin)
-      post(
-        :create,
-        params: {
-          organization: FactoryBot.attributes_for(:organization)
-        }
-      )
-      expect(response).to redirect_to(organization_application_submitted_path)
+    describe "POST create" do
+      
+      it "correctly" do 
+        # Create admin user to bypass email error
+        admin = FactoryBot.create(:user, :admin)
+        post(
+          :create,
+          params: {
+            organization: FactoryBot.attributes_for(:organization)
+          }
+        )
+        expect(response).to redirect_to(organization_application_submitted_path)
+      end
+
+      it "incorrectly" do
+        post(
+          :create,
+          params: {
+            organization: { email: nil }
+          }
+        )
+        expect(response).not_to redirect_to(organization_application_submitted_path)
+        expect(response).to be_successful()
+      end
+
     end
 
     it "GET edit" do
@@ -233,16 +268,20 @@ RSpec.describe OrganizationsController, type: :controller do
       expect(response).to redirect_to(dashboard_path)
     end
 
-    it "PATCH update" do
-      org = FactoryBot.create(:organization)
-      patch(
-        :update,
-        params: {
-          id: org.id,
-          organization: FactoryBot.attributes_for(:organization)
-        }
-      )
-      expect(response).to redirect_to(dashboard_path)
+    describe "PATCH update" do
+
+      it "correctly" do
+        org = FactoryBot.create(:organization)
+        patch(
+          :update,
+          params: {
+            id: org.id,
+            organization: FactoryBot.attributes_for(:organization)
+          }
+        )
+        expect(response).to redirect_to(dashboard_path)
+      end
+
     end
 
     it "PUT update" do
@@ -370,30 +409,74 @@ RSpec.describe OrganizationsController, type: :controller do
       expect(response).to be_successful()
     end
 
-    it "POST approve" do
-      org = FactoryBot.create(:organization, :unapproved)
-      post(
-        :approve,
-        params: {
-          id: org.id
-        }
-      )
-      expect(response).to redirect_to(organizations_path)
+    describe "POST approve" do
+
+      it "a valid organization" do
+        org = FactoryBot.create(:organization, :unapproved)
+        post(
+          :approve,
+          params: {
+            id: org.id
+          }
+        )
+        expect(response).to redirect_to(organizations_path)
+      end
+
+      it "an invalid organization" do
+        org = FactoryBot.create(:organization, :unapproved)
+
+        expect_any_instance_of(Organization).
+          to receive(:save).
+          and_return(false)
+
+        post(
+          :approve,
+          params: {
+            id: org.id
+          }
+        )
+        expect(response).to redirect_to(organization_path(id: org.id))
+      end
+
     end
 
-    it "POST reject" do
-      org = FactoryBot.create(:organization, :unapproved)
-      post(
-        :reject,
-        params: {
-          id: org.id,
-          organization: {
-            rejection_reason: "Testing"
+    describe "POST reject" do
+
+      it "with a valid organization" do
+        org = FactoryBot.create(:organization, :unapproved)
+        post(
+          :reject,
+          params: {
+            id: org.id,
+            organization: {
+              rejection_reason: "Testing"
+            }
           }
-        }
-      )
-      expect(response).to redirect_to(organizations_path)
+        )
+        expect(response).to redirect_to(organizations_path)
+      end
+
+      it "with an invalid organization" do
+        org = FactoryBot.create(:organization, :unapproved)
+
+        expect_any_instance_of(Organization).
+          to receive(:save).
+          and_return(false)
+
+        post(
+          :reject,
+          params: {
+            id: org.id,
+            organization: {
+              rejection_reason: "Testing"
+            }
+          }
+        )
+        expect(response).to redirect_to(organization_path(id: org.id))
+      end
+
     end
+
   end
 
 end
