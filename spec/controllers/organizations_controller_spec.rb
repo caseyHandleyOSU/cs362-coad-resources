@@ -231,9 +231,11 @@ RSpec.describe OrganizationsController, type: :controller do
 
     describe "POST create" do
       
-      it "correctly" do 
-        # Create admin user to bypass email error
-        admin = FactoryBot.create(:user, :admin)
+      it "with a valid organization" do 
+        expect_any_instance_of(UserMailer).
+          to receive(:new_organization_application).
+          and_return(nil)
+
         post(
           :create,
           params: {
@@ -243,7 +245,7 @@ RSpec.describe OrganizationsController, type: :controller do
         expect(response).to redirect_to(organization_application_submitted_path)
       end
 
-      it "incorrectly" do
+      it "with an invalid organization" do
         post(
           :create,
           params: {
@@ -352,7 +354,6 @@ RSpec.describe OrganizationsController, type: :controller do
     end
 
     it "POST create" do
-      admin = FactoryBot.create(:user, :admin)
       post(
         :create,
         params: {
