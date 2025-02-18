@@ -1,18 +1,26 @@
 FactoryBot.define do
+
   factory :ticket do
-    name { "Test Ticket" }
+    sequence(:name) { |n| "ticket #{n}" }
     phone { "+15553456789" }
     description { "Test description" }
-    closed { false }
-    association :region
-    association :resource_category
+    region
+    resource_category
 
-    trait :closed do
+    factory :ticket_closed do
       closed { true }
     end
 
-    trait :assigned do
-      association :organization
+    factory :ticket_open do
+      closed {false}
+    end
+
+    trait :with_region do
+      region_id { create(:region).id }
+    end
+
+    trait :with_category do
+      resource_category_id { create(:resource_category).id }
     end
   end
 end
