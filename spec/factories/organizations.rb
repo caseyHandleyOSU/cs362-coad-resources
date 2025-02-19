@@ -18,6 +18,10 @@ FactoryBot.define do
         agreement_six { true }
         agreement_seven { true }
         agreement_eight { true }
+
+        trait :approved do
+            satus { :approved }
+        end
     end
 end
   
