@@ -256,6 +256,20 @@ RSpec.describe OrganizationsController, type: :controller do
         expect(response).to be_successful()
       end
 
+      it "outside of a production or testing environment" do
+        expect(Rails.env).to receive(:production?).and_return(false)
+        expect(Rails.env).to receive(:test?).and_return(false)
+
+        post(
+          :create,
+          params: {
+            organization: FactoryBot.attributes_for(:organization)
+          }
+        )
+        expect(response).to redirect_to(organization_application_submitted_path)
+
+      end
+
     end
 
     it "GET edit" do
