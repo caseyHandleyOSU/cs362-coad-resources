@@ -233,7 +233,7 @@ RSpec.describe OrganizationsController, type: :controller do
       
       it "with a valid organization" do 
         expect_any_instance_of(UserMailer).
-          to receive(:new_organization_application).
+          to receive(:mail).
           and_return(nil)
 
         post(
