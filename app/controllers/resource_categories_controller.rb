@@ -54,7 +54,7 @@ class ResourceCategoriesController < ApplicationController
     delete_resource_category_service.run!
     redirect_to resource_categories_path, notice: "Category #{@resource_category.name} was deleted.\nAssociated tickets now belong to the 'Unspecified' category."
   end
-
+ 
   private
 
   def set_resource_category
