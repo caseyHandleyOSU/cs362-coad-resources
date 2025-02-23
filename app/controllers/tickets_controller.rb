@@ -8,13 +8,9 @@ class TicketsController < ApplicationController
   end
 
   def create
-    @ticket = Ticket.new(
-      name: params[:ticket][:name],
-      phone: format_phone_number(params[:ticket][:phone]),
-      description: params[:ticket][:description],
-      region_id: params[:ticket][:region_id],
-      resource_category_id: params[:ticket][:resource_category_id]
-    )
+    @ticket = Ticket.new(ticket_params)
+    @ticket.phone = format_phone_number(@ticket.phone)
+    
     if @ticket.save
       redirect_to ticket_submitted_path
     else
@@ -24,14 +20,17 @@ class TicketsController < ApplicationController
 
   def show
     return redirect_to dashboard_path unless current_user&.organization&.approved? || current_user.admin?
-    @ticket = Ticket.find(params[:id])
+    @ticket = Ticket.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Ticket not found." unless @ticket
   end
 
   def capture
     return redirect_to dashboard_path unless current_user&.organization&.approved?
-
-    if TicketService.capture_ticket(params[:id], current_user) == :ok
-      redirect_to dashboard_path << '#tickets:open'
+    @ticket = Ticket.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Ticket not found." unless @ticket
+    
+    if TicketService.capture_ticket(@ticket.id, current_user) == :ok
+      redirect_to "#{dashboard_path}#tickets:open"
     else
       render :show
     end
@@ -39,12 +38,14 @@ class TicketsController < ApplicationController
 
   def release
     return redirect_to dashboard_path unless current_user&.organization&.approved?
-
-    if TicketService.release_ticket(params[:id], current_user) == :ok
+    @ticket = Ticket.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Ticket not found." unless @ticket
+    
+    if TicketService.release_ticket(@ticket.id, current_user) == :ok
       if current_user.admin?
-        redirect_to dashboard_path << '#tickets:captured'
+        redirect_to "#{dashboard_path}#tickets:captured"
       else
-        redirect_to dashboard_path << '#tickets:organization'
+        redirect_to "#{dashboard_path}#tickets:organization"
       end
     else
       render :show
@@ -52,13 +53,15 @@ class TicketsController < ApplicationController
   end
 
   def close
-    return redirect_to dashboard_path unless current_user&.organization&.approved? || current_user.admin?
+    return redirect_to dashboard_path unless current_user&.organization&.approved?
+    @ticket = Ticket.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Ticket not found." unless @ticket
 
-    if TicketService.close_ticket(params[:id], current_user) == :ok
+    if TicketService.close_ticket(@ticket.id, current_user) == :ok
       if current_user.admin?
-        redirect_to dashboard_path << '#tickets:open'
+        redirect_to "#{dashboard_path}#tickets:open"
       else
-        redirect_to dashboard_path << '#tickets:organization'
+        redirect_to "#{dashboard_path}#tickets:organization"
       end
     else
       render :show
@@ -66,9 +69,11 @@ class TicketsController < ApplicationController
   end
 
   def destroy
-    ticket = Ticket.find(params[:id])
-    ticket.destroy
-    redirect_to (dashboard_path << '#tickets'), notice: "Ticket #{ticket.id} was deleted."
+    @ticket = Ticket.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Ticket not found." unless @ticket
+    
+    @ticket.destroy
+    redirect_to "#{dashboard_path}#tickets", notice: "Ticket #{@ticket.id} was deleted."
   end
 
   private
