@@ -9,7 +9,7 @@ FactoryBot.define do
     email     { generate(:user_email) }
     password  { "wowASecurePassword" }
 
-    before(:create) { |user| user.skip_confirmation! }
+    # before(:create) { |user| user.skip_confirmation! }
 
     trait :admin do
       role { :admin }

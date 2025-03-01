@@ -10,8 +10,8 @@ class User < ApplicationRecord
   belongs_to :organization, optional: true
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable,
-         :confirmable
+         :recoverable, :rememberable, :validatable
+         #, :confirmable
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates_presence_of :email
