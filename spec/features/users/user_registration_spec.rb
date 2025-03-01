@@ -13,9 +13,10 @@ RSpec.describe 'User registration', type: :feature do
     fill_in('Email', with: @dummy_usr.email)
     fill_in('Password', with: @dummy_usr.password)
     fill_in('Password confirmation', with: @dummy_usr.password)
-
-    # CAPCHA doesn't work so this test will not work
-    # expect(current_path).to eq(dashboard_path)
+    
+    find('#commit').click
+    
+    expect(current_path).to eq(dashboard_path)
   end
 
 end
