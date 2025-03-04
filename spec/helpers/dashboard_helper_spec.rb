@@ -12,44 +12,57 @@ require 'rails_helper'
 # end
 RSpec.describe DashboardHelper, type: :helper do
     describe 'dashboard_for' do
-        let(:user) { double('User') }
-        let(:organization) { double('Organization') }
+        let(:user) { create(:user) }
+        let(:organization) { create(:organization) }
+
+        shared_examples 'dashboard equals' do
+            it { expect(helper.dashboard_for(@user)).to eq(@dash) }
+        end
 
         context 'when user is an admin' do
-            it 'returns admin_dashboard' do
+            before do
+                @dash = 'admin_dashboard'
                 allow(user).to receive(:admin?).and_return(true)
-                expect(helper.dashboard_for(user)).to eq('admin_dashboard')
+                @user = user
             end
+
+            it_behaves_like 'dashboard equals'
         end
 
         context 'when user has an organization that is submitted' do
-            it 'returns organization_submitted_dashboard' do
+            before do
+                @dash = 'organization_submitted_dashboard'
                 allow(user).to receive(:admin?).and_return(false)
                 allow(user).to receive(:organization).and_return(organization)
                 allow(organization).to receive(:submitted?).and_return(true)
-
-                expect(helper.dashboard_for(user)).to eq('organization_submitted_dashboard')
+                @user = user 
             end
+
+            it_behaves_like 'dashboard equals'
         end
 
         context 'when user has an organization that is approved' do
-            it 'returns organization_approved_dashboard' do
+            before do
+                @dash = 'organization_approved_dashboard'
                 allow(user).to receive(:admin?).and_return(false)
                 allow(user).to receive(:organization).and_return(organization)
                 allow(organization).to receive(:submitted?).and_return(false)
                 allow(organization).to receive(:approved?).and_return(true)
-
-                expect(helper.dashboard_for(user)).to eq('organization_approved_dashboard')
+                @user = user
             end
+            
+            it_behaves_like 'dashboard equals'
         end
 
         context 'when user has no approved or submitted organization' do
-            it 'returns create_application_dashboard' do
+            before do
+                @dash = 'create_application_dashboard'
                 allow(user).to receive(:admin?).and_return(false)
                 allow(user).to receive(:organization).and_return(nil)
-
-                expect(helper.dashboard_for(user)).to eq('create_application_dashboard')
+                @user = user
             end
+
+            it_behaves_like 'dashboard equals'
         end
     end
 end

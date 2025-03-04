@@ -1,20 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe Region, type: :model do
-  let(:region) { build(:region) } # Uses FactoryBot
+  let(:region) { build(:region) }
 
   describe 'attributes' do
-    it { should respond_to(:name) }
+    it 'has a name' do
+      should respond_to(:name)
+    end
   end
 
   describe 'methods' do
-    it { should respond_to(:to_s) }
-    
-    it 'responds to self.unspecified' do
-      expect(Region).to respond_to(:unspecified)
-    end
-
-    it 'returns name as string representation' do
+    it 'to_s' do
       region.name = "Test Region"
       expect(region.to_s).to eq("Test Region")
     end
@@ -27,12 +23,29 @@ RSpec.describe Region, type: :model do
   end
 
   describe 'associations' do
-    it { should have_many(:tickets) }
+    it 'has many tickets' do
+      should have_many(:tickets)
+    end
   end
 
   describe 'validations' do
-    it { should validate_presence_of(:name) }
-    it { should validate_length_of(:name).is_at_least(1).is_at_most(255).on(:create) }
-    it { should validate_uniqueness_of(:name).case_insensitive }
+    describe 'presence of' do
+
+      it 'name' do
+        should validate_presence_of(:name)
+      end
+    end
+
+    describe 'length of' do
+      it 'name' do
+        should validate_length_of(:name).is_at_least(1).is_at_most(255).on(:create)
+      end
+    end
+
+    describe 'unqiueness of' do
+      it 'name' do
+        should validate_uniqueness_of(:name).case_insensitive
+      end
+    end
   end
 end

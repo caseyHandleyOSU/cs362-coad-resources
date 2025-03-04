@@ -20,7 +20,7 @@ FactoryBot.define do
         agreement_eight { true }
 
         trait :approved do
-            satus { :approved }
+            status { :approved }
         end
     end
 end

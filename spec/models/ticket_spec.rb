@@ -6,7 +6,7 @@ RSpec.describe Ticket, type: :model do
   let(:organization) { create(:organization) } 
 
   describe "methods" do
-    it "returns the name as string representation" do
+    it "to_s" do
       ticket = create(:ticket, id: 123)
       expect(ticket.to_s).to eq('Ticket 123')
     end
@@ -37,18 +37,64 @@ RSpec.describe Ticket, type: :model do
   end
 
   describe "associations" do
-    it { should belong_to(:region) }
-    it { should belong_to(:resource_category) }
+    it 'belongs to a region' do
+      should belong_to(:region)
+    end
+
+    it 'belongs to a resource category' do
+      should belong_to(:resource_category)
+    end
+
+    it 'optionally belongs to a organization' do
+      should belong_to(:organization).optional
+    end
   end
 
   describe "validations" do
-    it { should validate_presence_of(:name) }
-    it { should validate_presence_of(:phone) }
-    it { should validate_presence_of(:region_id) }
-    it { should validate_presence_of(:resource_category_id) }
+    describe 'validate presence of' do
+      it 'name' do
+        should validate_presence_of(:name)
+      end
 
-    it { should validate_length_of(:name).is_at_least(1).is_at_most(255).on(:create) }
-    it { should validate_length_of(:description).is_at_most(1020) }
+      it 'phone' do
+        should validate_presence_of(:phone)
+      end
+
+      it 'region_id' do
+        should validate_presence_of(:region_id)
+      end
+
+      it 'resource_category_id' do
+        should validate_presence_of(:resource_category_id)
+      end
+    end
+
+    describe 'validate length of' do
+      it 'name' do
+        should validate_length_of(:name).is_at_least(1).is_at_most(255).on(:create)
+      end
+      it 'desription' do
+        should validate_length_of(:description).is_at_most(1020)
+      end
+    end
+
+    describe 'validate pattern of' do
+      describe 'phone' do
+        it 'is valid' do
+          ticket = create(:ticket, id: 123)
+          expect(ticket).to allow_value('+15555551212').for(:phone)
+          expect(ticket).to allow_value('15555551212').for(:phone)
+          expect(ticket).to allow_value('+15554567890').for(:phone)
+        end
+
+        it 'is invalid' do
+          ticket = create(:ticket, id: 123)
+          expect(ticket).to_not allow_value("1").for(:phone)
+          expect(ticket).to_not allow_value("1234567890").for(:phone)
+          expect(ticket).to_not allow_value("5554567890").for(:phone)
+        end
+      end
+    end
   end
 
   describe "scopes" do

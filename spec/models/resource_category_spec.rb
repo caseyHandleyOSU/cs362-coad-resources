@@ -4,8 +4,13 @@ RSpec.describe ResourceCategory, type: :model do
   let(:resource_category) { build(:resource_category) }
 
   describe "attributes" do
-    it { should respond_to(:name) }
-    it { should respond_to(:active) }
+    it 'name' do
+      should respond_to(:name)
+    end
+
+    it 'active' do
+      should respond_to(:active)
+    end
   end
 
   describe "methods" do
@@ -19,12 +24,12 @@ RSpec.describe ResourceCategory, type: :model do
       expect(resource_category.active).to be false
     end
 
-    it "returns the name as string representation" do
+    it "to_s" do
       resource_category.name = "Test Name"
       expect(resource_category.to_s).to eq("Test Name")
     end
 
-    describe "#inactive?" do
+    describe "inactive?" do
       it "returns false when active is true" do
         resource_category.activate
         expect(resource_category.inactive?).to be false
@@ -36,7 +41,7 @@ RSpec.describe ResourceCategory, type: :model do
       end
     end
 
-    describe ".unspecified" do
+    describe "unspecified" do
       context "when 'Unspecified' category already exists" do
         it "returns the existing 'Unspecified' resource category" do
           existing_category = create(:resource_category, name: "Unspecified")
@@ -54,14 +59,33 @@ RSpec.describe ResourceCategory, type: :model do
   end
 
   describe "associations" do
-    it { should have_and_belong_to_many(:organizations) }
-    it { should have_many(:tickets) }
+    it 'has and belongs to many organizations' do
+      should have_and_belong_to_many(:organizations)
+    end
+
+    it 'has many tickets' do
+      should have_many(:tickets)
+    end
   end
 
   describe "validations" do
-    it { should validate_presence_of(:name) }
-    it { should validate_length_of(:name).is_at_least(1).is_at_most(255).on(:create) }
-    it { should validate_uniqueness_of(:name).case_insensitive }
+    describe 'validate presence of' do
+      it 'name' do
+        should validate_presence_of(:name)
+      end
+    end
+
+    describe 'validate length of' do
+      it 'name' do 
+        should validate_length_of(:name).is_at_least(1).is_at_most(255).on(:create)
+      end
+    end
+
+    describe 'validate uniqueness of' do
+      it 'name' do
+        should validate_uniqueness_of(:name).case_insensitive
+      end
+    end
   end
 
   describe "scopes" do

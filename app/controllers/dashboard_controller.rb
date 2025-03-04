@@ -7,7 +7,7 @@ class DashboardController < ApplicationController
     @status_options = status_options
     @pagy, @tickets = tickets
   end
-
+ 
   private
 
   def status_options
@@ -19,7 +19,7 @@ class DashboardController < ApplicationController
       ['Open']
     end
   end
-
+ 
   def tickets
     case params[:status]
     when 'Open'
