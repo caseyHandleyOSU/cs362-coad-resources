@@ -1,14 +1,92 @@
 require 'rails_helper'
 
 RSpec.describe DashboardController, type: :controller do
-    let(:user) { instance_double(User, admin?: false, organization: nil) }
+    let(:user) { create(:user) }
 
-    before do
-        allow(controller).to receive(:authenticate_user!)
-        allow(controller).to receive(:current_user).and_return(user)
+    shared_examples 'dashboard controller tests' do
+
+        describe 'logged out user' do
+            after(:each) { expect(response).not_to be_successful() }
+
+            it 'index' do
+                get :index, params: params
+            end
+        end
+
+        describe 'logged in user' do
+            before(:each) { sign_in user }
+            after(:each) { expect(response).to be_successful() }
+
+            it 'index' do
+                get :index, params: params
+            end
+        end
+
+        describe 'logged in organization user' do
+            before(:each) { 
+                org = create(:organization, :approved)
+                user = create(:user, organization_id: org)
+                sign_in user 
+            }
+            after(:each) { expect(response).to be_successful() }
+
+            it 'index' do
+                get :index, params: params
+            end
+        end
+
+        describe 'admin user' do
+            before(:each) {
+                user = create(:user, :admin)
+                sign_in user 
+            }
+            after(:each) { expect(response).to be_successful() }
+
+            it 'index' do
+                get :index, params: params
+            end
+        end
     end
 
-    describe 'index' do
+    describe 'status options' do
+        describe 'open status' do
+            let(:params) { {status: 'Open'} }
+
+            it_behaves_like 'dashboard controller tests'
+        end
+
+        describe 'closed status' do
+            let(:params) { {status: 'Closed'} }
+
+            it_behaves_like 'dashboard controller tests'
+        end
+
+        describe 'captured status' do
+            let(:params) { {status: 'Captured'} }
+
+            it_behaves_like 'dashboard controller tests'
+        end
+
+        describe 'my captured status' do
+            let(:params) { {status: 'My Captured'} }
+
+            it_behaves_like 'dashboard controller tests'
+        end
+
+        describe 'my closed status' do
+            let(:params) { { status: 'My Closed'} }
+
+            it_behaves_like 'dashboard controller tests'
+        end
+
+        describe 'no status' do
+            let(:params) { {status: ''} }
+
+            it_behaves_like 'dashboard controller tests'
+        end
+    end
+
+    describe 'filtering tickets' do
         let(:tickets_mock) { double("Tickets") }
         let(:pagy_mock) { instance_double(Pagy) }
 
@@ -16,38 +94,10 @@ RSpec.describe DashboardController, type: :controller do
             allow(Ticket).to receive(:all).and_return(tickets_mock)
             allow(controller).to receive(:pagy).with(tickets_mock, items: 10).and_return([pagy_mock, tickets_mock])
         end
-        
-        context 'when user is an admin' do
-            let(:user) { instance_double(User, admin?: true, organization: nil) }
-
-            it "sets status_options to ['Open', 'Captured', 'Closed]" do
-                subject.index
-                expect(subject.instance_variable_get(:@status_options)).to eq(['Open', 'Captured', 'Closed'])
-            end
-        end
-
-        context 'when user belongs to an approved organization' do
-            let(:organization) { instance_double(Organization, approved?: true) }
-            let(:user) { instance_double(User, admin?: false, organization: organization) }
-
-            it "sets status_options to ['Open, 'My Captured', 'My Closed']" do
-                subject.index
-                expect(subject.instance_variable_get(:@status_options)).to eq(['Open', 'My Captured', 'My Closed'])
-            end
-        end
-
-        context 'when a user does not belong to an approved organization' do
-            let(:organization) { instance_double(Organization, approved?: false) }
-            let(:user) { instance_double(User, admin?: false, organization: organization) }
-
-            it "sets status_options to ['Open']" do
-                subject.index
-                expect(subject.instance_variable_get(:@status_options)).to eq(['Open'])
-            end
-        end
 
         context 'when filtering tickets by status' do
             before do
+                sign_in user
                 allow(Ticket).to receive(:open).and_return(tickets_mock)
                 allow(Ticket).to receive(:closed).and_return(tickets_mock)
                 allow(Ticket).to receive(:all_organization).and_return(tickets_mock)
@@ -55,31 +105,31 @@ RSpec.describe DashboardController, type: :controller do
                 allow(Ticket).to receive(:closed_organization).and_return(tickets_mock)
             end
 
-            it "gets open tickets when status is 'Open'" do
+            it "Open" do
                 allow(controller).to receive(:params).and_return(ActionController::Parameters.new({status: 'Open'}))
                 subject.index
                 expect(Ticket).to have_received(:open)
             end
 
-            it "gets closed tickes when status is 'Closed'" do
+            it "Closed" do
                 allow(controller).to receive(:params).and_return(ActionController::Parameters.new({status: 'Closed'}))
                 subject.index
                 expect(Ticket).to have_received(:closed)
             end
 
-            it "gets user organization closed tickets when status is 'My Closed'" do
+            it "My Closed'" do
                 allow(controller).to receive(:params).and_return(ActionController::Parameters.new({status: 'My Closed'}))
                 subject.index
                 expect(Ticket).to have_received(:closed_organization)
             end
 
-            it "gets captured tickets when status is 'Captured'" do
+            it "Captured" do
                 allow(controller).to receive(:params).and_return(ActionController::Parameters.new({status: 'Captured'}))
                 subject.index
                 expect(Ticket).to have_received(:all_organization)
             end
 
-            it "gets user organization tickets when status is 'My Captured'" do
+            it "My Captured" do
                 allow(controller).to receive(:params).and_return(ActionController::Parameters.new({status: 'My Captured'}))
                 subject.index
                 expect(Ticket).to have_received(:organization)
@@ -90,6 +140,7 @@ RSpec.describe DashboardController, type: :controller do
             let(:filtered_tickets) { double("Filtered Tickets") }
 
             before do
+                sign_in user
                 allow(Ticket).to receive(:all).and_return(tickets_mock)
                 allow(tickets_mock).to receive(:region).and_return(filtered_tickets)
                 allow(filtered_tickets).to receive(:resource_category).and_return(filtered_tickets)
@@ -105,6 +156,7 @@ RSpec.describe DashboardController, type: :controller do
 
         context 'sorting tickets' do
             before do
+                sign_in user
                 allow(tickets_mock).to receive(:reverse).and_return(tickets_mock)
             end
 
