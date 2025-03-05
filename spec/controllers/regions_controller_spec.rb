@@ -1,136 +1,261 @@
 require 'rails_helper'
 
 RSpec.describe RegionsController, type: :controller do
-    let(:user) { instance_double(User, admin?: true)}
-    let(:region) { instance_double(Region, id: 1, name: 'Test Region')}
+    let!(:user) { create(:user) }
+    let!(:region) { create(:region) }
+    let!(:admin) { create(:user, :admin) }
 
-    before do
-        allow(controller).to receive(:authenticate_user!)
-        allow(controller).to receive(:authenticate_admin)
-        allow(controller).to receive(:current_user).and_return(user)
-        allow(Region).to receive(:find).with(1).and_return(region)
-    end
-    
-    describe 'index' do
-        let(:regions_mock) { double("Regions") }
+    describe 'GET index' do
 
-        before do
-            allow(Region).to receive(:all).and_return(regions_mock)
-        end
+        context 'as a logged out user' do
+            it 'redirects to login' do
 
-        it 'fetches all regions' do
-            subject.index
-            expect(Region).to have_received(:all)
-        end
-    end
+                get(:index)
 
-    describe 'show' do
-        before do
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new({ id: 1 }))
-            allow(Region).to receive(:includes).with(:tickets).and_return(Region)
-            allow(Region).to receive(:find).with(1).and_return(region)
-        end
-
-        it 'fetches the region with tickets' do
-            subject.show
-            expect(Region).to have_received(:includes).with(:tickets)
-            expect(Region).to have_received(:find).with(1)
-        end
-    end
-
-    describe 'new' do
-        before do
-            allow(Region).to receive(:new).and_return(region)
-        end
-
-        it 'initializes a new region' do
-            subject.new
-            expect(Region).to have_received(:new)
-            expect(subject.instance_variable_get(:@region)).to eq(region)
-        end
-    end
-
-    describe 'create' do
-        let(:new_region) { instance_double(Region, save: true) }
-
-        before do
-            allow(Region).to receive(:new).and_return(new_region)
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new({ region: { name: "New Region" } }))
-        end
-
-        context 'when the region is successfully created' do
-            before do
-                allow(new_region).to receive(:save).and_return(true)
-            end
-
-            it 'redirects to the index with a success message' do
-                expect(subject).to receive(:redirect_to).with(regions_path, notice: 'Region successfully created.')
-                subject.create
+                expect(response).to redirect_to(new_user_session_path)
             end
         end
 
-        context 'when the region creation fails' do
-            before do
-                allow(new_region).to receive(:save).and_return(false)
-            end
+        context 'as a logged in user' do
+            it 'redirects to dashboard' do
 
-            it 'renders the new template' do
-                expect(subject).to receive(:render).with(:new)
-                subject.create
+                sign_in user
+
+                get(:index)
+
+                expect(response).to redirect_to(dashboard_path)
+            end
+        end
+
+        context 'as an admin' do
+            it 'verifies the request was a success' do
+                sign_in admin
+
+                get(:index)
+
+                expect(response).to be_successful
             end
         end
     end
 
-    describe 'edit' do
-        before do
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new({ id: 1 }))
-        end
+    describe 'GET show' do
 
-        it 'sets region' do
-            subject.edit
-            expect(subject.instance_variable_get(:@region)).to eq(region)
-        end
-    end
+        context 'as a logged out user' do
+            it 'redirects to login' do
+                get(:show, params: {id: region.id})
 
-    describe 'update' do
-        before do
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new({ id: 1, region: { name: "Updated Region" } }))
-            allow(region).to receive(:update).and_return(true)
-        end
-
-        context 'when the update is successful' do
-            it 'redirects to the region with a success message' do
-                expect(subject).to receive(:redirect_to).with(region, notice: 'Region successfully updated.')
-                subject.update
+                expect(response).to redirect_to(new_user_session_path)
             end
         end
 
-        context 'when the update fails' do
-            before do
-                allow(region).to receive(:update).and_return(false)
-            end
+        context 'as a logged in user' do
+            it 'redirects to dashboard' do
+                sign_in user
+                get(:show, params: {id: region.id})
 
-            it 'renders the edit template' do
-                expect(subject).to receive(:render).with(:edit)
-                subject.update
+                expect(response).to redirect_to(dashboard_path)
+            end
+        end
+
+        context 'as an admin' do
+            it 'verifies the request was a success' do
+                sign_in admin
+
+                get(:show, params: {id: region.id})
+
+                expect(response).to be_successful
             end
         end
     end
 
-    describe 'destroy' do
-        let(:delete_service) { instance_double(DeleteRegionService, run!: true) }
+    describe 'GET new' do
 
-        before do
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new({ id: 1 }))
-            allow(Region).to receive(:includes).with(:tickets).and_return(Region)
-            allow(Region).to receive(:find).with(1).and_return(region)
-            allow(DeleteRegionService).to receive(:new).with(region).and_return(delete_service)
+        context 'as a logged out user' do
+            it 'redirects to login' do
+
+                get(:new, params: {id: region.id})
+
+                expect(response).to redirect_to(new_user_session_path)
+            end
         end
 
-        it 'runs the delete service and redirects with a success message' do
-            expect(delete_service).to receive(:run!)
-            expect(subject).to receive(:redirect_to).with(regions_path, notice: "Region #{region.name} was deleted. Associated tickets now belong to the 'Unspecified' region.")
-            subject.destroy
+        context 'as a logged in user' do
+            it 'redirects to dashboard' do
+                sign_in user
+
+                get(:new, params: {id: region.id})
+
+                expect(response).to redirect_to(dashboard_path)
+            end
+        end
+
+        context 'as an admin' do
+            it 'verifies the request was a success' do
+                sign_in admin
+
+                get(:new, params: {id: region.id})
+
+                expect(response).to be_successful
+            end
+        end
+    end
+
+    describe 'POST create' do
+
+        context 'as a logged out user' do
+            it 'redirects to login' do
+                post(:create, params: {region: attributes_for(:region)})
+
+                expect(response).to redirect_to(new_user_session_path)
+            end
+        end
+
+        context 'as a logged in user' do
+            it 'redirects to dashboard' do
+                sign_in user 
+
+                post(:create, params: {region: attributes_for(:region)})
+
+                expect(response).to redirect_to(dashboard_path)
+            end
+        end
+
+        context 'as an admin' do
+
+            context 'if region.save' do
+                it 'redirects to regions_path' do
+                    sign_in admin
+
+                    post(:create, params: {region: attributes_for(:region)})
+
+                    expect(response).to redirect_to(regions_path)
+                    expect(flash[:notice]).to eq('Region successfully created.')
+                end
+            end
+            
+            context 'if not region.save' do
+                it 'renders the new template' do
+                    sign_in admin
+
+                    allow_any_instance_of(Region).to receive(:save).and_return(false)
+
+                    expect(controller).to receive(:render).with(:new)
+
+                    post(:create, params: {region: attributes_for(:region)})
+                end
+            end
+        end
+
+    end
+
+    describe 'GET edit' do
+
+        context 'as a logged out user' do
+            it 'redirects to login' do
+                get(:edit, params: {id: region.id})
+
+                expect(response).to redirect_to(new_user_session_path)
+            end
+        end
+
+        context 'as a logged in user' do
+            it 'redirects to dashboard' do
+                sign_in user
+
+                get(:edit, params: {id: region.id})
+
+                expect(response).to redirect_to(dashboard_path)
+            end
+        end
+
+        context 'as an admin' do
+            it 'verifies the request was a success' do
+                sign_in admin
+
+                get(:edit, params: {id: region.id})
+
+                expect(response).to be_successful 
+            end
+        end
+    end
+
+    describe 'PUT update' do
+
+        context 'as a logged out user' do
+            it 'redirects to login' do
+
+                put(:update, params: {id: region.id})
+
+                expect(response).to redirect_to(new_user_session_path)
+            end
+        end
+
+        context 'as a logged in user' do
+            it 'redirects to dahsboard' do
+                sign_in user
+
+                put(:update, params: {id: region.id})
+
+                expect(response).to redirect_to(dashboard_path)
+            end
+        end
+
+        context 'as an admin' do
+
+            context "when 'region.update(region_params)'" do
+                it 'redirects to region' do
+                    sign_in admin
+
+                    put(:update, params: {id: region.id, region: {name: 'Updated name'}})
+
+                    expect(response).to redirect_to(region)
+                    expect(flash[:notice]).to eq('Region successfully updated.')
+                end
+            end
+
+            context "when not 'region.update(region_params)" do
+                it 'renders the edit template' do
+                    sign_in admin
+
+                    allow_any_instance_of(Region).to receive(:update).and_return(false)
+
+                    expect(controller).to receive(:render).with(:edit)
+
+                    put(:update, params: {id: region.id, region: {name: 'Updated name'}})
+                end
+            end
+        end
+    end
+
+    describe 'DELETE destroy' do
+
+        context 'as a logged out user' do
+            it 'redirects to login' do
+                delete(:destroy, params: {id: region.id})
+
+                expect(response).to redirect_to(new_user_session_path)
+            end
+        end
+
+        context 'as a logged in user' do
+            it 'redirects to dashboard' do
+                sign_in user
+
+                delete(:destroy, params: {id: region.id})
+
+                expect(response).to redirect_to(dashboard_path)
+            end
+        end
+
+        context 'as an admin' do
+            it 'redirects to login' do
+                sign_in admin
+                
+                delete(:destroy, params: {id: region.id})
+
+                expect(response).to redirect_to(regions_path)
+                expect(flash[:notice]).to eq("Region #{region.name} was deleted. Associated tickets now belong to the 'Unspecified' region.")
+            end
         end
     end
 end

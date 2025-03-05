@@ -84,20 +84,22 @@ RSpec.describe Organization, type: :model do
       expect(organization.status).to eq('rejected')
     end
 
-    it "sets default status to :submitted for new records" do
-      new_org = build(:organization, status: nil)
-      new_org.set_default_status
-      expect(new_org.status).to eq('submitted')
+    describe 'set_default_status' do
+      it "sets default status to :submitted for new records" do
+        new_org = build(:organization, status: nil)
+        new_org.set_default_status
+        expect(new_org.status).to eq('submitted')
+      end
+
+      it "does not overwrite existing status" do
+        org = build(:organization, status: :approved)
+        org.set_default_status
+        expect(org.status).to eq('approved')
+      end
     end
 
-    it "does not overwrite existing status" do
-      org = build(:organization, status: :approved)
-      org.set_default_status
-      expect(org.status).to eq('approved')
-    end
-
-    it "returns the name of the organization" do 
-      organization.name = "Test Org"
+    it "to_s" do 
+      organization.update(name: "Test Org")
       expect(organization.to_s).to eq("Test Org")
     end
   end
