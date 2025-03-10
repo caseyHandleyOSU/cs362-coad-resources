@@ -9,8 +9,8 @@ RSpec.describe 'Retrieving a list of user emails', type: :feature do
 
     visit(users_path)
 
-    expect(page).to have_selector('p', text: @admin.email)
-    expect(page).to have_selector('p', text: @user2.email)
+    expect(page).to have_selector('p', text: admin.email)
+    expect(page).to have_selector('p', text: user2.email)
   end
 
 end
