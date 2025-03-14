@@ -1,247 +1,456 @@
 require 'rails_helper'
 
 RSpec.describe TicketsController, type: :controller do
-    let(:user) { instance_double(User, admin?: false, organization: instance_double(Organization, approved?: true)) }
-    let(:admin) { instance_double(User, admin?: true) }
-    let(:ticket) { instance_double(Ticket, id: 1, name: "Test Ticket", phone: "123-456-7890") }
+    let!(:user) { create(:user) }
+    let!(:ticket) { create(:ticket) }
+    let!(:org) { create(:organization, :approved) }
+    let!(:approved_user) { create(:user, organization_id: org.id)}
+    let!(:admin) { create(:user, :admin, organization_id: org.id) }
 
-    before do
-        allow(controller).to receive(:authenticate_admin)
-        allow(controller).to receive(:current_user).and_return(user)
-        allow(Ticket).to receive(:find_by).with(id: "1").and_return(ticket)
-    end
+    describe 'GET new' do
 
-    describe 'new' do
-        it 'initializes a new ticket' do
-            allow(Ticket).to receive(:new).and_return(ticket)
+        context 'as a logged out user' do
+            it 'redirects to dashboard' do
+                get(:new)
 
-            subject.new
-
-            expect(Ticket).to have_received(:new)
-            expect(subject.instance_variable_get(:@ticket)).to eq(ticket)
-        end
-  end
-
-    describe 'create' do
-        let(:valid_params) do
-            ActionController::Parameters.new(ticket: { 
-            name: "Valid Ticket", 
-            phone: "1234567890", 
-            description: "Test description", 
-            region_id: 1, 
-            resource_category_id: 1 
-            }).permit!
-        end
-
-        before do
-            allow(controller).to receive(:params).and_return(valid_params)
-            allow(Ticket).to receive(:new).and_return(ticket)
-            allow(ticket).to receive(:phone=)
-        end
-
-        context 'when ticket is valid' do
-            before do
-                allow(ticket).to receive(:save).and_return(true)
-            end
-
-            it 'creates a ticket and redirects' do
-                expect(subject).to receive(:redirect_to).with(ticket_submitted_path)
-
-                subject.create
-
-                expect(Ticket).to have_received(:new)
-                expect(ticket).to have_received(:save)
+                expect(response).to redirect_to(new_user_session_path)
             end
         end
 
-        context 'when ticket is invalid' do
-            before do 
-                allow(ticket).to receive(:save).and_return(false)
+        context 'as an un-approved user' do
+            it 'verifies the request was a success' do
+                sign_in user
+
+                get(:new)
+
+                expect(response).to be_successful
             end
-        
-            it 'renders the new template' do
-                expect(subject).to receive(:render).with(:new)
-                subject.create
-                expect(Ticket).to have_received(:new)
-                expect(ticket).to have_received(:save)
+        end
+
+        context 'as an approved user' do
+            it 'verifies the request was a success' do
+                sign_in approved_user
+
+                get(:new)
+
+                expect(response).to be_successful
+            end
+        end
+
+        context 'as an admin' do
+            it 'verifies the request was a success' do
+                sign_in admin
+
+                get(:new)
+
+                expect(response).to be_successful
             end
         end
     end
 
-    describe 'show' do
-        before do
-            allow(Ticket).to receive(:find_by).and_return(ticket)
-        end
+    describe 'PUT create' do
 
-        context 'when user is unauthorized' do
-            before do
-                allow(user.organization).to receive(:approved?).and_return(false)
-                allow(user).to receive(:admin?).and_return(false)
-            end
+        context 'as a logged out user' do
+            it 'redirects to login' do
+                put(:create, params: {ticket: attributes_for(:ticket, :with_category, :with_region)})
 
-            it 'redirects to the dashboard' do
-                expect(subject).to receive(:redirect_to).with(dashboard_path)
-                subject.show
+                expect(response).to redirect_to(new_user_session_path)
             end
         end
 
-        context 'when user is authorized' do
-            it 'sets the ticket instance variable' do
-                subject.show
-                expect(subject.instance_variable_get(:@ticket)).to eq(ticket)
+        context 'as an un-approved user' do
+            context 'when ticket.save' do
+                it 'redirects to dashboard' do
+                    sign_in user
+
+                    put(:create, params: {ticket: attributes_for(:ticket, :with_category, :with_region)})
+
+                    expect(response).to redirect_to(ticket_submitted_path)
+                end
+            end
+
+            context 'when not ticket.save' do
+                it 'renders the new template' do
+                    sign_in user
+
+                    allow_any_instance_of(Ticket).to receive(:save).and_return(false)
+
+                    expect(controller).to receive(:render).with(:new)
+
+                    put(:create, params: {ticket: attributes_for(:ticket, :with_category, :with_region)})
+                end
+            end
+        end
+
+        context 'as an approved user' do
+            
+            context "when 'ticket.save" do
+                it 'redirects to ticket_submitted_path' do
+                    sign_in approved_user
+
+                    put(:create, params: {ticket: attributes_for(:ticket, :with_category, :with_region)})
+
+                    expect(response).to redirect_to(ticket_submitted_path)
+                end
+            end
+
+            context "when not 'ticket.save" do
+                it 'verifies the request was a success' do
+                    sign_in approved_user
+
+                    allow_any_instance_of(Ticket).to receive(:save).and_return(false)
+
+                    expect(response).to be_successful
+                end 
+            end
+                
+        end
+
+        context 'as an approved user' do
+
+            context "when ticket.save" do
+                it 'redirects to ticket_submitted_path' do
+                    sign_in approved_user
+
+                    put(:create, params: {ticket: attributes_for(:ticket, :with_category, :with_region)})
+
+                    expect(response).to redirect_to(ticket_submitted_path)
+                end
+            end
+
+            context "when not 'ticket.save" do
+                it 'verifies the request was a success' do
+                    sign_in approved_user
+
+                    allow_any_instance_of(Ticket).to receive(:save).and_return(false)
+
+                    put(:create, params: {ticket: attributes_for(:ticket, :with_category, :with_region)})
+
+                    expect(response).to be_successful
+                end
+            end
+        end
+
+        context 'as an admin' do
+
+            context "when ticket.save" do
+                it 'redirects to ticket_submitted_path' do
+                    sign_in admin
+
+                    put(:create, params: {ticket: attributes_for(:ticket, :with_category, :with_region)})
+
+                    expect(response).to redirect_to(ticket_submitted_path)
+                end
+            end
+
+            context "when not 'ticket.save" do
+                it 'renders the new template' do
+                    sign_in admin
+
+                    allow_any_instance_of(Ticket).to receive(:save).and_return(false)
+
+                    put(:create, params: {ticket: attributes_for(:ticket, :with_category, :with_region)})
+
+                    expect(response).to be_successful
+                end
             end
         end
     end
 
-    describe 'capture' do
-        before do 
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new(id: "1"))
-            allow(Ticket).to receive(:find_by).with(id: "1").and_return(ticket)
-            allow(TicketService).to receive(:capture_ticket).with(ticket.id, user).and_return(:ok)
-        end
+    describe 'GET show' do
 
-        it 'captures the ticket and redirects' do
-            expect(subject).to receive(:redirect_to).with("#{dashboard_path}#tickets:open")
-            subject.capture
-            expect(TicketService).to have_received(:capture_ticket).with(ticket.id, user)
-        end
+        context 'as a logged out user' do
+            it 'redirects to login' do
+                get(:show, params: {id: ticket.id})
 
-        context 'when capture fails' do
-            before do 
-                allow(TicketService).to receive(:capture_ticket).and_return(:error)
+                expect(response).to redirect_to(new_user_session_path)
             end
+        end
 
-            it 'renders show' do
-                expect(subject).to receive(:render).with(:show)
-                subject.capture
+        context 'as an un-approved user' do
+            it 'redirect to dashboard' do
+                sign_in user
+
+                get(:show, params: {id: ticket.id})
+
+                expect(response).to redirect_to(dashboard_path)
+            end
+        end
+
+        context 'as an approved user' do
+            it 'verifies the request was a success' do
+                sign_in approved_user
+
+                get(:show, params: {id: ticket.id})
+                
+                expect(response).to be_successful
+            end
+        end
+
+        context 'as an admin' do
+            it 'verifies the request was a success' do
+                sign_in admin
+
+                get(:show, params: {id: ticket.id})
+                
+                expect(response).to be_successful
             end
         end
     end
 
-    describe 'release' do
-        before do 
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new(id: "1"))
-            allow(Ticket).to receive(:find_by).with(id: "1").and_return(ticket)
-            allow(TicketService).to receive(:release_ticket).with(ticket.id, user).and_return(:ok)
-        end
+    describe 'PUT capture' do
 
-        context 'when user is an admin' do
-            before do 
-                allow(user).to receive(:admin?).and_return(true)
-            end
+        context 'as a logged out user' do
+            it 'redirects to login' do
+                put(:capture, params: {id: ticket.id})
 
-            it 'redirects to the captured tickets section' do
-                expect(subject).to receive(:redirect_to).with("#{dashboard_path}#tickets:captured")
-                subject.release
+                expect(response).to redirect_to(new_user_session_path)
             end
         end
 
-        context 'when user is an organization member' do
-            it "redirects to the organization's tickets section" do
-                expect(subject).to receive(:redirect_to).with("#{dashboard_path}#tickets:organization")
-                subject.release
+        context 'as an un-approved user' do
+            it 'redirects to dashboard' do
+                sign_in user
+
+                put(:capture, params: {id: ticket.id})
+
+                expect(response).to redirect_to(dashboard_path)
             end
         end
 
-        context 'when release fails' do
-            before do 
-                allow(TicketService).to receive(:release_ticket).and_return(:error)
-            end
+        context 'as an approved user' do
 
-            it 'renders show' do
-                expect(subject).to receive(:render).with(:show)
-                subject.release
+            context 'with an owned ticket' do
+                it 'redirects to dashboard_path#tickets_open' do
+                    sign_in approved_user
+
+                    put(:capture, params: {id: ticket.id})
+
+                    expect(response).to redirect_to(dashboard_path << "#tickets:open")
+                end 
             end
+            
+            context 'with anothers ticket' do
+                it 'does not redirect' do
+                    sign_in approved_user
+                    some_org = create(:organization, :approved)
+                    new_ticket = create(:ticket, organization_id: some_org.id)
+
+                    put(:capture, params: {id: new_ticket.id})
+
+                    expect(response).not_to redirect_to(dashboard_path << "#tickets:open")
+                end
+            end 
+        end 
+
+        context 'as an admin' do
+
+            context 'with an owned ticket' do
+                it 'redirects to dashboard_path#tickets_open' do
+                    sign_in admin
+
+                    put(:capture, params: {id: ticket.id})
+
+                    expect(response).to redirect_to(dashboard_path << "#tickets:open")
+                end 
+            end
+            
+            context 'with anothers ticket' do
+                it 'does not redirect' do
+                    sign_in admin
+                    some_org = create(:organization, :approved)
+                    ticket = create(:ticket, organization_id: some_org.id)
+
+                    put(:capture, params: {id: ticket.id})
+
+                    expect(response).not_to redirect_to(dashboard_path << "#tickets:open")
+                end
+            end 
         end
+
     end
 
-    describe 'close' do
-        before do
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new(id: "1"))
-            allow(Ticket).to receive(:find_by).with(id: "1").and_return(ticket)
-            allow(TicketService).to receive(:close_ticket).with(ticket.id, user).and_return(:ok)
-        end
-      
-        context 'when user is not authorized' do
-            before do
-                allow(user.organization).to receive(:approved?).and_return(false)
-                allow(user).to receive(:admin?).and_return(false)
-            end
-        
-            it 'redirects to the dashboard' do
-                expect(subject).to receive(:redirect_to).with(dashboard_path)           
-                subject.close
+    describe 'PUT release' do
+
+        context 'as a logged out user' do
+            it 'redirects to login' do
+                put(:release, params: {id: ticket.id})
+
+                expect(response).to redirect_to(new_user_session_path)
             end
         end
-      
-        context 'when ticket is not found' do
-            before do 
-                allow(Ticket).to receive(:find_by).with(id: "1").and_return(nil)
-            end
-        
-            it 'redirects to the dashboard with an alert message' do
-                expect(subject).to receive(:redirect_to).with(dashboard_path, alert: "Ticket not found.")
-                subject.close
-            end
-        end
-      
-        context 'when user is an admin' do
-            before do 
-                allow(user).to receive(:admin?).and_return(true)
-            end
-        
-            it 'redirects to the open tickets section' do
-                expect(subject).to receive(:redirect_to).with("#{dashboard_path}#tickets:open")
-                subject.close
+
+        context 'as an un-approved user' do
+            it 'redirects to dashboard' do
+                sign_in user 
+
+                put(:release, params: {id: ticket.id})
+
+                expect(response).to redirect_to(dashboard_path)
             end
         end
-      
-        context 'when user is an organization member' do
-            it "redirects to the organization's tickets section" do
-                expect(subject).to receive(:redirect_to).with("#{dashboard_path}#tickets:organization")
-                subject.close
+
+        context 'as an approved user' do
+            
+            context 'with an owned ticket' do
+                it 'redirects to tickets:organization' do
+                    sign_in approved_user
+
+                    allow(TicketService).to receive(:release_ticket).and_return(:ok)
+
+                    put(:release, params: {id: ticket.id})
+
+                    expect(response).to redirect_to(dashboard_path << "#tickets:organization")
+                end
+            end
+
+            context 'with anothers ticket' do
+                it 'verifies the request was a success' do
+                    sign_in approved_user
+
+                    new_ticket = create(:ticket)
+
+                    post(:release, params: {id: new_ticket.id})
+
+                    expect(response).to be_successful
+                end
             end
         end
-      
-        context 'when closing the ticket fails' do
-            before do 
-                allow(TicketService).to receive(:close_ticket).and_return(:error)
+
+        context 'as an admin' do
+
+            context 'with an owned ticket' do
+                it 'redirects to tickets:captured' do
+                    sign_in admin
+                    some_ticket = create(:ticket, organization_id: org.id)
+
+                    post(:release, params: {id: some_ticket.id})
+
+                    expect(response).to redirect_to(dashboard_path << "#tickets:captured")
+                end
             end
-        
-            it 'renders show' do
-                expect(subject).to receive(:render).with(:show)      
-                subject.close
+
+            context 'with anothers ticket' do
+                it 'redirects to tickets:captured' do
+                    sign_in admin
+
+                    post(:release, params: {id: ticket.id})
+
+                    expect(response).to redirect_to(dashboard_path << "#tickets:captured")
+                end
             end
         end
+
     end
+
+    describe 'PATCH close' do
+
+        context 'as a logged out user' do
+            it 'redirects to dashboard' do
+                patch(:close, params: {id: ticket.id})
+
+                expect(response).to redirect_to(new_user_session_path)
+            end
+        end
+
+        context 'as an un-approved user' do
+            it 'redirects to dashboard' do
+                sign_in user
+
+                patch(:close, params: {id: ticket.id})
+
+                expect(response).to redirect_to(dashboard_path)
+            end
+        end
     
-    describe 'destroy' do
-        before do
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new(id: "1"))
+
+        context 'as an approved user' do
+
+            context 'with owned ticket' do
+                it 'redirects to tickets:organization' do
+                    sign_in approved_user
+                    some_ticket = create(:ticket, organization_id: org.id)
+
+                    patch(:close, params: {id: some_ticket.id})
+
+                    expect(response).to redirect_to(dashboard_path << "#tickets:organization")
+                end
+            end
+
+            context 'with anothers ticket' do
+                it 'verifies the request was a success' do
+                    sign_in approved_user
+
+                    patch(:close, params: {id: ticket.id})
+
+                    expect(response).to be_successful
+                end
+            end
         end
-      
-        context 'when the ticket exists' do
-            before do
-                allow(Ticket).to receive(:find_by).with(id: "1").and_return(ticket)
-                allow(ticket).to receive(:destroy)
+
+        context 'as an admin' do
+
+            context 'with owned ticket' do
+                it 'redirects to tickets:open' do
+                    sign_in admin
+                    some_ticket = create(:ticket, organization_id: org.id)
+
+                    patch(:close, params: {id: some_ticket.id})
+
+                    expect(response).to redirect_to(dashboard_path << "#tickets:open")
+                end
             end
-      
-            it 'destroys the ticket and redirects with a success message' do
-                expect(ticket).to receive(:destroy)
-                expect(subject).to receive(:redirect_to).with("#{dashboard_path}#tickets", notice: "Ticket #{ticket.id} was deleted.")
-                subject.destroy
-            end
-        end
-      
-        context 'when the ticket does not exist' do
-            before do 
-                allow(Ticket).to receive(:find_by).with(id: "1").and_return(nil)
-            end
-        
-            it 'redirects to the dashboard with an alert message' do
-                expect(subject).to receive(:redirect_to).with(dashboard_path, alert: "Ticket not found.")
-                subject.destroy
+
+            context 'with anothers ticket' do
+                it 'redirects to tickets:open' do
+                    sign_in admin
+
+                    patch(:close, params: {id: ticket.id})
+
+                    expect(response).to redirect_to(dashboard_path << "#tickets:open")
+                end
             end
         end
     end
-end
+
+    describe 'DELETE destroy' do
+
+        context 'as a logged out user' do
+            it 'redirects to login' do
+                delete(:destroy, params: {id: ticket.id})
+
+                expect(response).to redirect_to(new_user_session_path)
+            end
+        end
+
+        context 'as an un-approved user' do
+            it 'is unsuccessfull' do
+                sign_in user
+
+                delete(:destroy, params: {id: ticket.id})
+
+                expect(response).not_to be_successful
+            end
+        end
+
+        context 'as an approved user' do
+            it 'is unsuccessfull' do
+                sign_in approved_user
+
+                delete(:destroy, params: {id: ticket.id})
+
+                expect(response).not_to be_successful
+            end
+        end
+
+        context 'as an admin' do
+            it 'redirects to tickets' do
+                sign_in admin
+
+                delete(:destroy, params: {id: ticket.id})
+
+                expect(response).to redirect_to(dashboard_path << "#tickets")
+            end
+        end
+    end
+end 

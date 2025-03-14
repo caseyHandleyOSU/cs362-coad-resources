@@ -1,8 +1,9 @@
 class TicketsController < ApplicationController
   include TicketsHelper
 
+  before_action :authenticate_user!
   before_action :authenticate_admin, only: :destroy
-
+ 
   def new
     @ticket = Ticket.new
   end
